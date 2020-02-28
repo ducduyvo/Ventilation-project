@@ -30,7 +30,6 @@
 #include "LpcUart.h"
 #include "Printer.h"
 
-#define printf printer.print
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -50,7 +49,6 @@
  ****************************************************************************/
 static volatile int counter;
 static volatile uint32_t systicks;
-static Printer printer;
 
 #ifdef __cplusplus
 extern "C" {
@@ -188,6 +186,7 @@ void abbModbusTest()
 		setFrequency(node, fa[i]);
 	}
 }
+
 #else
 bool setFrequency(ModbusMaster& node, uint16_t freq)
 {
@@ -213,7 +212,7 @@ bool setFrequency(ModbusMaster& node, uint16_t freq)
 		// check if we are at setpoint
 		if (result >= 0 && (result & 0x0100)) atSetpoint = true;
 		ctr++;
-	} while(ctr < 20 && !atSetpoint);
+	} while(ctr < 10 && !atSetpoint);
 
 	printf("Elapsed: %d\n", ctr * delay); // for debugging
 
