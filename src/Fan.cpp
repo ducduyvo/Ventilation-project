@@ -34,16 +34,16 @@ Fan::Fan(uint8_t percent) : node(2) {
 
     printf("Status=%04X\n", (int)StatusWord); // for debugging
 
-    setSpeed(percent);
+    setFanSpeed(speed);
 }
 
 Fan::~Fan() { };
 
-void Fan::setFrequency() {
+void Fan::setFanSpeed(uint16_t speed_) {
     printf("Set freq = %d\n", speed); // for debugging
     ModbusRegister Frequency(&node, 1); // reference 1
 	ModbusRegister StatusWord(&node, 3);
-    Frequency = speed; // set motor frequency
+    Frequency = speed_; // set motor frequency
 
 }
 
@@ -52,5 +52,5 @@ void Fan::setSpeed(uint8_t percent)  {
     else if (percent < 0)  speed = 0;
     else                   speed = percent * 200;
 
-    setFrequency();
+    setFanSpeed(speed);
 }

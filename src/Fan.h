@@ -25,7 +25,7 @@ public:
 
     void setSpeed(uint8_t percent) ; // set the fan speed in percent (0-100)
     uint16_t getSpeed() { return speed; }; // get the fan speed (0-20000)
-    void setFrequency(); // set the motor frequency according to speed variable
+    void setFanSpeed(uint16_t speed_); // set the motor frequency according to speed variable
 
 private:
     ModbusMaster node;

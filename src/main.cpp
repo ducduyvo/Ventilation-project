@@ -30,7 +30,7 @@
 #include "LpcUart.h"
 #include "Printer.h"
 #include "Fan.h"
-#include <stdlib.h>     /* srand, rand */
+#include "I2C.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -347,9 +347,18 @@ int main(void)
     dbgu.write("Hello, world\n");
 
     /* abbModbusTest(); */
-    Fan fan;
+    /* Fan fan; */
+    struct I2C_config i2c_config;
+    I2C i2c(i2c_config);
+
+    uint8_t array[3];
+    uint8_t cmd = READ_COMMAND;
     while(1) {
-        fan.setSpeed(0);
+        printf("The bool return is %d\n", i2c.transaction(PRESSURE_ADDRESS, &cmd, 1, array, 3));
+        for (int i = 0; i < 3; ++i) {
+            printf("Value %d = %u\n", i+1, array[i]);
+        }
+        Sleep(1000);
     }
 
     return 1;
