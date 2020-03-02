@@ -1,8 +1,8 @@
 #include "Fan.h"
-#include "ModbusRegister.h"
 
 
-Fan::Fan(uint8_t percent) : node(2) {
+Fan::Fan() :
+    node(2), speed(&node, 1), controlWord(&node, 2), statusWord(&node, 3) {
     node.begin(9600); // set transmission rate - other parameters are set inside the object and can't be changed here
 
     ModbusRegister ControlWord(&node, 0);
@@ -34,16 +34,14 @@ Fan::Fan(uint8_t percent) : node(2) {
 
     printf("Status=%04X\n", (int)StatusWord); // for debugging
 
-    setFanSpeed(speed);
+    setFanSpeed(fanSpeed);
 }
 
 Fan::~Fan() { };
 
 void Fan::setFanSpeed(uint16_t speed_) {
-    printf("Set freq = %d\n", speed); // for debugging
-    ModbusRegister Frequency(&node, 1); // reference 1
-	ModbusRegister StatusWord(&node, 3);
-    Frequency = speed_; // set motor frequency
+    fanSpeed = speed_;
+    printf("Set freq = %d\n", fanSpeed); // for debugging
 
 }
 
@@ -54,3 +52,8 @@ void Fan::setSpeed(uint8_t percent)  {
 
     setFanSpeed(speed);
 }
+
+bool Fan::getStatusBit(uint8_t bit) {
+    return (statusWord & (1 << bit));
+}
+

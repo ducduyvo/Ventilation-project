@@ -31,6 +31,7 @@
 #include "Printer.h"
 #include "Fan.h"
 #include "I2C.h"
+#include "crc16.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -346,20 +347,32 @@ int main(void)
     printf("Started\n"); // goes to ITM console if retarget_itm.c is included
     dbgu.write("Hello, world\n");
 
-    /* abbModbusTest(); */
-    /* Fan fan; */
-    struct I2C_config i2c_config;
-    I2C i2c(i2c_config);
+    /* struct I2C_config i2c_config; */
+    /* I2C i2c(i2c_config); */
 
-    uint8_t array[3];
-    uint8_t cmd = READ_COMMAND;
-    while(1) {
-        printf("The bool return is %d\n", i2c.transaction(PRESSURE_ADDRESS, &cmd, 1, array, 3));
-        for (int i = 0; i < 3; ++i) {
-            printf("Value %d = %u\n", i+1, array[i]);
+    /* uint8_t array[3]; */
+    /* uint8_t cmd = READ_COMMAND; */
+    /* uint16_t pressure = 0; */
+    /* while(1) { */
+    /*     printf("The bool return is %d\n", i2c.transaction(PRESSURE_ADDRESS, &cmd, 1, array, 3)); */
+    /*     pressure = (array[0] << 8) | array[1]; */
+    /*     printf("pressure = %d\n", pressure); */
+    /*     printf("crc = %u\n", array[2]); */
+    /*     Sleep(1000); */
+    /* } */
+    Fan fan;
+    int j = 20;
+    while (1) {
+        for (int i = 0; i < 10; ++i) {
+            printf("bit %d = %d\n", i, fan.getStatusBit(i));
         }
-        Sleep(1000);
-        //Hello
+        fan.setSpeed(j++);
+        if (j > 50) j = 20;
+        Sleep(10000);
+
+        // Example use case for checking if remote is on
+        if (fan.getStatusBit(StatusContent::REMOTE)) {
+        }
     }
 
     return 1;

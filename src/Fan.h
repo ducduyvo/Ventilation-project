@@ -6,9 +6,9 @@
 #define MIN_SPEED 0
 
 #include "ModbusMaster.h"
+#include "ModbusRegister.h"
 
 void Sleep(int ms);
-
 
 #if defined (__USE_LPCOPEN)
 #if defined(NO_BOARD_LIB)
@@ -18,18 +18,26 @@ void Sleep(int ms);
 #endif
 #endif
 
+enum StatusContent { RDY_ON, RDY_RUN, RDY_REF, TRIPPED, OFF_2_STA, OFF_3_STA, SWC_ON_INHIB, ALARM, AT_SETPOINT, REMOTE, ABOVE_LIMIT, EXT_CTRL_LOC, EXT_RUN_ENABLE };
+
 class Fan {
 public:
-    Fan(uint8_t percent = 0);
+    Fan();
     virtual ~Fan();
 
-    void setSpeed(uint8_t percent) ; // set the fan speed in percent (0-100)
-    uint16_t getSpeed() { return speed; }; // get the fan speed (0-20000)
-    void setFanSpeed(uint16_t speed_); // set the motor frequency according to speed variable
+    void setSpeed(uint8_t percent); // set the fan speed in percent (0-100)
+    uint8_t getSpeed() { return speed / 200; } // get the fan speed in percent (0-100)
+
+    uint16_t getStatusWord() { return statusWord; }
+    bool getStatusBit(uint8_t bit);
 
 private:
     ModbusMaster node;
-    uint16_t speed; // motor speed
+	ModbusRegister controlWord;        // Used to control the motor speed
+	ModbusRegister speed;              // Used to control the motor speed
+	ModbusRegister statusWord;
+    uint16_t fanSpeed = 0;             // motor speed
+    void setFanSpeed(uint16_t speed_); // set the motor speed according to speed variable
 };
 
 #endif /* FAN_H_ */
