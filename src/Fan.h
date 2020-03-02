@@ -18,6 +18,7 @@ void Sleep(int ms);
 #endif
 #endif
 
+// describe the status word content for the ABB Drives Profile
 enum StatusRegister { RDY_ON, RDY_RUN, RDY_REF, TRIPPED, OFF_2_STA, OFF_3_STA, SWC_ON_INHIB, ALARM, AT_SETPOINT, REMOTE, ABOVE_LIMIT, EXT_CTRL_LOC, EXT_RUN_ENABLE };
 
 class Fan {
