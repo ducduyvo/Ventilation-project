@@ -1,4 +1,4 @@
-#ifndef FAN_H_
+    #ifndef FAN_H_
 #define FAN_H_
 
 // values for speed member
