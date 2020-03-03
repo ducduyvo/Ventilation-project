@@ -41,7 +41,7 @@ Fan::~Fan() { };
 
 void Fan::setFanSpeed(uint16_t speed_) {
     fanSpeed = speed_;
-    printf("Set freq = %d\n", fanSpeed); // for debugging
+    /* printf("Set freq = %d\n", fanSpeed); // for debugging */
 
 }
 
