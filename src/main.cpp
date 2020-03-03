@@ -34,6 +34,7 @@
 #include "crc16.h"
 #include "Pressure.h"
 #include "Controller.h"
+#include "math.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -129,7 +130,11 @@ int main(void)
         }
 
         else if (currentState == State::automatic) {
-            fan.setSpeed(fan.getSpeed() + ((targetPressure - pressure.getPressure()) / 4));
+            int offset = targetPressure - pressure.getPressure();
+            if (offset < 0) offset = -sqrt(abs(offset));
+
+        else offset = sqrt(abs(offset));
+            fan.setSpeed(fan.getSpeed() + offset);
         }
 
         else printf("Some sort of error happened\n");
