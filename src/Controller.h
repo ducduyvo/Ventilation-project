@@ -3,21 +3,25 @@
 
 #include "Pressure.h"
 #include "Fan.h"
-
-enum State { manual, automatic };
+#include "IntegerEdit.h"
+#include "ModeEdit.h"
 
 class Controller {
 public:
-    Controller(Fan *fan_ = nullptr, Pressure *pressure_ = nullptr, State state_ = manual);
+    Controller(Fan *fan_, Pressure *pressure_, ModeEdit *state_);
     virtual ~Controller();
-    void executeState();
+    void updatePeripherals();
+    void setTargetSpeed(uint8_t targetSpeed_) { targetSpeed = targetSpeed_; }
+    void setTargetPressure(uint8_t targetPressure_) { targetPressure = targetPressure_; }
 
 private:
     Fan *fan;
     Pressure *pressure;
-    uint16_t targetSpeed; // in percent
-    uint8_t targetPressure;
-    State state;
+    IntegerEdit *fanEdit;
+    IntegerEdit *pressureEdit;
+    ModeEdit *currentMode;
+    uint16_t targetSpeed;   // in percent
+    uint8_t targetPressure; // in pascal
 };
 
 #endif /* CONTROLLER_H_ */
