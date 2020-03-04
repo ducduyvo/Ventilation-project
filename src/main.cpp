@@ -122,18 +122,17 @@ int main(void)
     Fan fan;
     int j = 0;
     Pressure pressure;
-    controllerState currentState = automatic;
+    controllerMode currentState = manual;
     int targetPressure = 50;
     while (1) {
-        if (currentState == controllerState::manual) {
-            fan.setSpeed(50);
+        if (currentState == controllerMode::manual) {
+            fan.setSpeed(0);
         }
 
-        else if (currentState == controllerState::automatic) {
+        else if (currentState == controllerMode::automatic) {
             int offset = targetPressure - pressure.getPressure();
             if (offset < 0) offset = -sqrt(abs(offset));
-
-        else offset = sqrt(abs(offset));
+            else offset = sqrt(abs(offset));
             fan.setSpeed(fan.getSpeed() + offset);
         }
 

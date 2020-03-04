@@ -8,18 +8,18 @@
 
 class Controller {
 public:
-    Controller(Fan *fan_, Pressure *pressure_, ModeEdit *state_);
+    Controller(Fan &fan_, Pressure &pressure_, IntegerEdit &fanEdit_, IntegerEdit &pressureEdit_, ModeEdit &state_);
     virtual ~Controller();
     void updatePeripherals();
     void setTargetSpeed(uint8_t targetSpeed_) { targetSpeed = targetSpeed_; }
     void setTargetPressure(uint8_t targetPressure_) { targetPressure = targetPressure_; }
 
 private:
-    Fan *fan;
-    Pressure *pressure;
-    IntegerEdit *fanEdit;
-    IntegerEdit *pressureEdit;
-    ModeEdit *currentMode;
+    Fan &fan;
+    Pressure &pressure;
+    IntegerEdit &fanEdit;
+    IntegerEdit &pressureEdit;
+    ModeEdit &currentMode;
     uint16_t targetSpeed;   // in percent
     uint8_t targetPressure; // in pascal
 };

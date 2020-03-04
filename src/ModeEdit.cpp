@@ -67,15 +67,15 @@ void ModeEdit::save() {
     // todo: save current value for example to EEPROM for permanent storage
 }
 
-int ModeEdit::getValue() {
+controllerMode ModeEdit::getValue() {
     return value;
 }
 
-int ModeEdit::getEdit() {
+controllerMode ModeEdit::getEdit() {
     return edit;
 }
 
-void ModeEdit::setValue(int value) {
+void ModeEdit::setValue(controllerMode value) {
     edit = value;
     save();
 }

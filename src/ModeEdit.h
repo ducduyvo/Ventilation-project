@@ -18,7 +18,7 @@ enum controllerMode { manual, automatic }; // TODO Think about where to put this
 
 class ModeEdit: public PropertyEdit {
 public:
-	ModeEdit(LiquidCrystal *lcd_, std::string editTitle);
+	ModeEdit(LiquidCrystal *lcd_, std::string editTitle, controllerMode mode);
 	virtual ~ModeEdit();
 	void increment();
 	void decrement();
@@ -29,7 +29,7 @@ public:
 	void display();
 	controllerMode getValue();
     controllerMode getEdit();
-	void setValue(int value);
+	void setValue(controllerMode value);
     std::string getTitle();
 private:
 	void save();
