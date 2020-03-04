@@ -9,10 +9,12 @@
 class Controller {
 public:
     Controller(Fan &fan_, Pressure &pressure_, IntegerEdit &fanEdit_, IntegerEdit &pressureEdit_, ModeEdit &state_);
-    virtual ~Controller();
+    virtual ~Controller(){};
     void updatePeripherals();
     void setTargetSpeed(uint8_t targetSpeed_) { targetSpeed = targetSpeed_; }
     void setTargetPressure(uint8_t targetPressure_) { targetPressure = targetPressure_; }
+    uint8_t getTargetSpeed() { return targetSpeed; }
+    uint8_t getTargetPressure() { return targetPressure; }
 
 private:
     Fan &fan;

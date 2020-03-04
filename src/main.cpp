@@ -35,6 +35,7 @@
 #include "Controller.h"
 #include "math.h"
 #include "SimpleMenu.h"
+#include "IntegerEdit.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -55,7 +56,11 @@ static volatile int counter;
 static volatile uint32_t systicks;
 static SimpleMenu menu; /* this could also be allocated from the heap */
 static LiquidCrystal *lcd;
-static ModeEdit *modeEdit;
+static Controller *controller;
+
+IntegerEdit targetSpeed(lcd, "Speed", 0, 100, 10);
+IntegerEdit targetPressure(lcd, "Pressure", 0, 120, 10);
+ModeEdit modeEdit(lcd, "Mode", automatic);
 
 #ifdef __cplusplus
 extern "C"
@@ -208,15 +213,17 @@ int main(void)
 
     Fan fan;
     Pressure pressure;
+
     controllerMode currentState = automatic;
-    int targetPressure = 50;
-    modeEdit = new ModeEdit(lcd, "Editor", automatic);
+    //int targetPressure = 50;
 
+    controller = new Controller(fan, pressure, targetSpeed, targetPressure, modeEdit);
 
-    menu.addItem(new MenuItem(modeEdit));
+    menu.addItem(new MenuItem(&modeEdit));
+    menu.addItem(new MenuItem(&targetSpeed));
+    menu.addItem(new MenuItem(&targetPressure));
 
     menu.event(MenuItem::show); // display first menu item
-
 
     // while (1) {
     //     if (currentState == controllerMode::manual) {
@@ -237,20 +244,8 @@ int main(void)
     // }
     while (1)
     {
-        if (modeEdit->getValue() == 0)
-        {
-            fan.setSpeed(20);
-        }
-        else if (modeEdit->getValue() == 1)
-        {
-            int offset = targetPressure - pressure.getPressure();
-            if (offset < 0)
-                offset = -sqrt(abs(offset));
-            else
-                offset = sqrt(abs(offset));
-            fan.setSpeed(fan.getSpeed() + offset);
-        }
-        printf("Pressure = %d, FanSpeed = %u\n", pressure.getPressure(), fan.getSpeed());
+        controller->updatePeripherals();
+        printf("Pressure = %d, FanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
 
         Sleep(100);
     }

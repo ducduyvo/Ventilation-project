@@ -10,6 +10,8 @@ Controller::Controller(Fan &fan_, Pressure &pressure_, IntegerEdit &fanEdit_, In
 }
 
 void Controller::updatePeripherals() {
+    targetSpeed = fanEdit.getValue();
+    targetPressure = pressureEdit.getValue();
     switch (currentMode.getValue()) {
 
     case controllerMode::manual:
