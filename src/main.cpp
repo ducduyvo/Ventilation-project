@@ -35,6 +35,7 @@
 #include "Pressure.h"
 #include "Controller.h"
 #include "math.h"
+#include "SimpleMenu.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -54,6 +55,8 @@
  ****************************************************************************/
 static volatile int counter;
 static volatile uint32_t systicks;
+static SimpleMenu menu; /* this could also be allocated from the heap */
+static LiquidCrystal *lcd;
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,6 +87,26 @@ uint32_t millis() {
     return systicks;
 }
 
+extern "C" {
+    void PIN_INT0_IRQHandler(void) {
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+        menu.event(MenuItem::up);
+        printf("sw1\n");
+    }
+
+    void PIN_INT1_IRQHandler(void) {
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
+        menu.event(MenuItem::down);
+        printf("sw2\n");
+    }
+
+    void PIN_INT2_IRQHandler(void) {
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
+        menu.event(MenuItem::ok);
+        printf("sw3\n");
+    }
+}
+
 
 /**
  * @brief	Main UART program body
@@ -101,6 +124,7 @@ int main(void)
     Board_Init();
     // Set the LED to the state of "On"
     Board_LED_Set(0, true);
+    Chip_RIT_Init(LPC_RITIMER);
 #endif
 #endif
     LpcPinMap none = {-1, -1}; // unused pin has negative values in it
@@ -113,20 +137,75 @@ int main(void)
     Chip_SWM_MovablePortPinAssign(SWM_SWO_O, 1, 2); // Needed for SWO printf
 
     /* Enable and setup SysTick Timer at a periodic rate */
+    Chip_Clock_SetSysTickClockDiv(1);
     SysTick_Config(SystemCoreClock / 1000);
 
     Board_LED_Set(0, false);
     Board_LED_Set(1, true);
     printf("Started\n"); // goes to ITM console if retarget_itm.c is included
 
+    // Switches used to initalize the pins
+    DigitalIoPin sw1(1, 3, true, true, true);
+    DigitalIoPin sw2(0, 9, true, true, true);
+    DigitalIoPin sw3(0, 10, true, true, true);
+
+    // Configure channel interrupt as edge sensitive and falling edge interrupt
+    /* Initialize PININT driver */
+    Chip_PININT_Init(LPC_GPIO_PIN_INT);
+    Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_PININT);
+    Chip_SYSCTL_PeriphReset(RESET_PININT);
+
+    // DONT USE THESE DIGITALPINS
+	// {-1, -1};
+	// { 1, 9 };
+	// { 1, 10 };
+	// { 0, 29 };
+
+    // Confiure interrupts
+    // switch 1
+    Chip_INMUX_PinIntSel(0, 1, 3);
+    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+    Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(0));
+    Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(0));
+    NVIC_ClearPendingIRQ(PIN_INT0_IRQn);
+    NVIC_EnableIRQ(PIN_INT0_IRQn);
+
+    // switch 2
+    Chip_INMUX_PinIntSel(1, 0, 9);
+    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
+    Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(1));
+    Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(1));
+    NVIC_ClearPendingIRQ(PIN_INT1_IRQn);
+    NVIC_EnableIRQ(PIN_INT1_IRQn);
+
+    // switch 3
+    Chip_INMUX_PinIntSel(2, 0, 10);
+    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
+    Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(2));
+    Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(2));
+    NVIC_ClearPendingIRQ(PIN_INT2_IRQn);
+    NVIC_EnableIRQ(PIN_INT2_IRQn);
+
+    // LCD
+    DigitalIoPin rs(0, 8, false, true, false);
+    DigitalIoPin en(1, 6, false, true, false);
+    DigitalIoPin d4(1, 8, false, true, false);
+    DigitalIoPin d5(0, 5, false, true, false);
+    DigitalIoPin d6(0, 6, false, true, false);
+    DigitalIoPin d7(0, 7, false, true, false);
+    lcd = new LiquidCrystal(&rs, &en, &d4, &d5, &d6, &d7);
+    lcd->begin(16,2);
+    lcd->setCursor(0,0);
+    lcd->print("hello");
+
     Fan fan;
     int j = 0;
     Pressure pressure;
-    controllerMode currentState = manual;
+    controllerMode currentState = automatic;
     int targetPressure = 50;
     while (1) {
         if (currentState == controllerMode::manual) {
-            fan.setSpeed(0);
+            fan.setSpeed(50);
         }
 
         else if (currentState == controllerMode::automatic) {
@@ -141,13 +220,6 @@ int main(void)
         printf("Pressure = %d, FanSpeed = %u\n", pressure.getPressure(), fan.getSpeed());
         Sleep(100);
     }
-
-    /* while(1) { */
-    /*     printf("Pressure = %d, FanSpeed = %u\n", pressure.getPressure(), fan.getSpeed()); */
-    /*     fan.setSpeed(j++); */
-    /*     if (j > 100) j = 0; */
-    /*     Sleep(100); */
-    /* } */
 
     return 1;
 }
