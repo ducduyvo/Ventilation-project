@@ -155,7 +155,7 @@ int main(void)
     Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_PININT);
     Chip_SYSCTL_PeriphReset(RESET_PININT);
 
-    // DONT USE THESE DIGITALPINS
+    // DONT USE THESE DIGITAL PINS
 	// {-1, -1};
 	// { 1, 9 };
 	// { 1, 10 };
