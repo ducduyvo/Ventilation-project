@@ -25,6 +25,7 @@ public:
 	void accept();
 	void cancel();
 	void setFocus(bool focus);
+	void changeState();
 	bool getFocus();
 	void display();
 	controllerMode getValue();

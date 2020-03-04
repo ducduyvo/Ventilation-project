@@ -8,7 +8,7 @@
 ===============================================================================
  */
 
-#if defined (__USE_LPCOPEN)
+#if defined(__USE_LPCOPEN)
 #if defined(NO_BOARD_LIB)
 #include "chip.h"
 #else
@@ -24,7 +24,6 @@
 
 #include <cstring>
 #include <cstdio>
-
 #include "ModbusMaster.h"
 #include "ModbusRegister.h"
 #include "LpcUart.h"
@@ -49,7 +48,6 @@
  * Private functions
  ****************************************************************************/
 
-
 /*****************************************************************************
  * Public functions
  ****************************************************************************/
@@ -57,19 +55,22 @@ static volatile int counter;
 static volatile uint32_t systicks;
 static SimpleMenu menu; /* this could also be allocated from the heap */
 static LiquidCrystal *lcd;
+static ModeEdit *modeEdit;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-/**
+    /**
  * @brief	Handle interrupt from SysTick timer
  * @return	Nothing
  */
-void SysTick_Handler(void)
-{
-    systicks++;
-    if(counter > 0) counter--;
-}
+    void SysTick_Handler(void)
+    {
+        systicks++;
+        if (counter > 0)
+            counter--;
+    }
 #ifdef __cplusplus
 }
 #endif
@@ -77,36 +78,43 @@ void SysTick_Handler(void)
 void Sleep(int ms)
 {
     counter = ms;
-    while(counter > 0) {
+    while (counter > 0)
+    {
         __WFI();
     }
 }
 
 /* this function is required by the modbus library */
-uint32_t millis() {
+uint32_t millis()
+{
     return systicks;
 }
 
-extern "C" {
-    void PIN_INT0_IRQHandler(void) {
+extern "C"
+{
+    void PIN_INT0_IRQHandler(void)
+    {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
         menu.event(MenuItem::up);
+        //modeEdit->increment();
         printf("sw1\n");
     }
 
-    void PIN_INT1_IRQHandler(void) {
+    void PIN_INT1_IRQHandler(void)
+    {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-        menu.event(MenuItem::down);
+        menu.event(MenuItem::ok);
         printf("sw2\n");
     }
 
-    void PIN_INT2_IRQHandler(void) {
+    void PIN_INT2_IRQHandler(void)
+    {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-        menu.event(MenuItem::ok);
         printf("sw3\n");
+        menu.event(MenuItem::down);
+        //modeEdit->decrement();
     }
 }
-
 
 /**
  * @brief	Main UART program body
@@ -115,7 +123,7 @@ extern "C" {
 int main(void)
 {
 
-#if defined (__USE_LPCOPEN)
+#if defined(__USE_LPCOPEN)
     // Read clock settings and update SystemCoreClock variable
     SystemCoreClockUpdate();
 #if !defined(NO_BOARD_LIB)
@@ -128,9 +136,9 @@ int main(void)
 #endif
 #endif
     LpcPinMap none = {-1, -1}; // unused pin has negative values in it
-    LpcPinMap txpin = { 0, 18 }; // transmit pin that goes to debugger's UART->USB converter
-    LpcPinMap rxpin = { 0, 13 }; // receive pin that goes to debugger's UART->USB converter
-    LpcUartConfig cfg = { LPC_USART0, 115200, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_1, false, txpin, rxpin, none, none };
+    LpcPinMap txpin = {0, 18}; // transmit pin that goes to debugger's UART->USB converter
+    LpcPinMap rxpin = {0, 13}; // receive pin that goes to debugger's UART->USB converter
+    LpcUartConfig cfg = {LPC_USART0, 115200, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_1, false, txpin, rxpin, none, none};
     LpcUart dbgu(cfg);
 
     /* Set up SWO to PIO1_2 */
@@ -156,10 +164,10 @@ int main(void)
     Chip_SYSCTL_PeriphReset(RESET_PININT);
 
     // DONT USE THESE DIGITAL PINS
-	// {-1, -1};
-	// { 1, 9 };
-	// { 1, 10 };
-	// { 0, 29 };
+    // {-1, -1};
+    // { 1, 9 };
+    // { 1, 10 };
+    // { 0, 29 };
 
     // Confiure interrupts
     // switch 1
@@ -194,33 +202,58 @@ int main(void)
     DigitalIoPin d6(0, 6, false, true, false);
     DigitalIoPin d7(0, 7, false, true, false);
     lcd = new LiquidCrystal(&rs, &en, &d4, &d5, &d6, &d7);
-    lcd->begin(16,2);
-    lcd->setCursor(0,0);
+    lcd->begin(16, 2);
+    lcd->setCursor(0, 0);
     lcd->print("hello");
 
     Fan fan;
-    int j = 0;
     Pressure pressure;
     controllerMode currentState = automatic;
     int targetPressure = 50;
-    while (1) {
-        if (currentState == controllerMode::manual) {
-            fan.setSpeed(50);
-        }
+    modeEdit = new ModeEdit(lcd, "Editor", automatic);
 
-        else if (currentState == controllerMode::automatic) {
+
+    menu.addItem(new MenuItem(modeEdit));
+
+    menu.event(MenuItem::show); // display first menu item
+
+
+    // while (1) {
+    //     if (currentState == controllerMode::manual) {
+    //         fan.setSpeed(50);
+    //     }
+
+    //     else if (currentState == controllerMode::automatic) {
+    //         int offset = targetPressure - pressure.getPressure();
+    //         if (offset < 0) offset = -sqrt(abs(offset));
+    //         else offset = sqrt(abs(offset));
+    //         fan.setSpeed(fan.getSpeed() + offset);
+    //     }
+
+    //     else printf("Some sort of error happened\n");
+
+    //     printf("Pressure = %d, FanSpeed = %u\n", pressure.getPressure(), fan.getSpeed());
+    //     Sleep(100);
+    // }
+    while (1)
+    {
+        if (modeEdit->getValue() == 0)
+        {
+            fan.setSpeed(20);
+        }
+        else if (modeEdit->getValue() == 1)
+        {
             int offset = targetPressure - pressure.getPressure();
-            if (offset < 0) offset = -sqrt(abs(offset));
-            else offset = sqrt(abs(offset));
+            if (offset < 0)
+                offset = -sqrt(abs(offset));
+            else
+                offset = sqrt(abs(offset));
             fan.setSpeed(fan.getSpeed() + offset);
         }
-
-        else printf("Some sort of error happened\n");
-
         printf("Pressure = %d, FanSpeed = %u\n", pressure.getPressure(), fan.getSpeed());
+
         Sleep(100);
     }
 
     return 1;
 }
-

@@ -12,16 +12,14 @@
 #endif
 #endif
 
-<<<<<<< HEAD
-// describe the status word content for the ABB Drives Profile
-=======
+void Sleep(int ms);
+
 // values for speed member
 #define MAX_SPEED 20000
 #define MIN_SPEED 0
 
 void Sleep(int ms);
 
->>>>>>> eb8c9f3bcf09599846eaedf423f4443cc6825514
 enum StatusRegister { RDY_ON, RDY_RUN, RDY_REF, TRIPPED, OFF_2_STA, OFF_3_STA, SWC_ON_INHIB, ALARM, AT_SETPOINT, REMOTE, ABOVE_LIMIT, EXT_CTRL_LOC, EXT_RUN_ENABLE };
 
 class Fan {

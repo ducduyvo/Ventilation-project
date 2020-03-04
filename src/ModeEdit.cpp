@@ -9,77 +9,96 @@
 #include "ModeEdit.h"
 #include <cstdio>
 
-ModeEdit::ModeEdit(LiquidCrystal *lcd_, std::string editTitle, controllerMode mode) :
-    lcd(lcd_),
-    title(editTitle),
-    value(mode),
-    edit(mode)
+ModeEdit::ModeEdit(LiquidCrystal *lcd_, std::string editTitle, controllerMode mode) : lcd(lcd_),
+                                                                                      title(editTitle),
+                                                                                      value(mode),
+                                                                                      edit(mode)
 {
     focus = false;
 }
 
-ModeEdit::~ModeEdit() {
+ModeEdit::~ModeEdit()
+{
 }
 
-void ModeEdit::increment() {
+void ModeEdit::increment()
+{
     // TODO: create incrment function
+    edit = controllerMode::automatic;
 }
 
-void ModeEdit::decrement() {
+void ModeEdit::decrement()
+{
     // TODO: create decrement function
+    edit = controllerMode::manual;
+}
+void ModeEdit::changeState()
+{
 }
 
-void ModeEdit::accept() {
+void ModeEdit::accept()
+{
     save();
 }
 
-void ModeEdit::cancel() {
+void ModeEdit::cancel()
+{
     edit = value;
 }
 
-void ModeEdit::setFocus(bool focus) {
+void ModeEdit::setFocus(bool focus)
+{
     this->focus = focus;
 }
 
-bool ModeEdit::getFocus() {
+bool ModeEdit::getFocus()
+{
     return this->focus;
 }
 
-void ModeEdit::display() {
+void ModeEdit::display()
+{
     lcd->clear();
-    lcd->setCursor(0,0);
+    lcd->setCursor(0, 0);
     lcd->print(title);
-    lcd->setCursor(0,1);
+    lcd->setCursor(0, 1);
     char s[17];
-    if(focus) {
-        snprintf(s, 17, "     [%4d]     ", edit); // TODO do something like edit.getString()
+    if (focus)
+    {
+        snprintf(s, 17, "     [%4s]     ", edit ? "automatic" : "manual"); // TODO do something like edit.getString()
     }
-    else {
-        snprintf(s, 17, "      %4d      ", edit);
+    else
+    {
+        snprintf(s, 17, "      %4s      ", edit ? "automatic" : "manual");
     }
     lcd->print(s);
 }
 
-
-void ModeEdit::save() {
+void ModeEdit::save()
+{
     // set current value to be same as edit value
     value = edit;
     // todo: save current value for example to EEPROM for permanent storage
 }
 
-controllerMode ModeEdit::getValue() {
+controllerMode ModeEdit::getValue()
+{
     return value;
 }
 
-controllerMode ModeEdit::getEdit() {
+controllerMode ModeEdit::getEdit()
+{
     return edit;
 }
 
-void ModeEdit::setValue(controllerMode value) {
+void ModeEdit::setValue(controllerMode value)
+{
     edit = value;
+    this->value = edit;
     save();
 }
 
-std::string ModeEdit::getTitle() {
+std::string ModeEdit::getTitle()
+{
     return title;
 }

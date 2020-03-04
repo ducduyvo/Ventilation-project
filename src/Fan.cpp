@@ -41,7 +41,6 @@ void Fan::setSpeed(uint8_t percent)  {
     if (percent > 100)     speed = MAX_SPEED;
     else if (percent < 0)  speed = MIN_SPEED;
     else                   speed = percent * 200;
-g
     setFanSpeed(speed);
 }
 
