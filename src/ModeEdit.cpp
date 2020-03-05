@@ -1,4 +1,3 @@
-
 /*
  * ModeEdit.cpp
  *
@@ -10,30 +9,26 @@
 #include <cstdio>
 
 ModeEdit::ModeEdit(LiquidCrystal *lcd_, std::string editTitle, Mode mode) : lcd(lcd_),
-                                                                                      title(editTitle),
-                                                                                      value(mode),
-                                                                                      edit(mode)
+    title(editTitle),
+    value(mode),
+    edit(mode)
 {
     focus = false;
 }
 
-ModeEdit::~ModeEdit()
-{
-}
-
 void ModeEdit::increment()
 {
-    // TODO: create incrment function
-    edit = Mode::automatic;
+    changeState();
 }
 
 void ModeEdit::decrement()
 {
-    // TODO: create decrement function
-    edit = Mode::manual;
+    changeState();
 }
+
 void ModeEdit::changeState()
 {
+    edit = Mode(!edit);
 }
 
 void ModeEdit::accept()
@@ -65,11 +60,11 @@ void ModeEdit::display()
     char s[17];
     if (focus)
     {
-        snprintf(s, 17, "     [%4s]     ", edit ? "automatic" : "manual"); // TODO do something like edit.getString()
+        snprintf(s, 17, "     [%4s]     ", toString(edit));
     }
     else
     {
-        snprintf(s, 17, "      %4s      ", edit ? "automatic" : "manual");
+        snprintf(s, 17, "      %4s      ", toString(edit));
     }
     lcd->print(s);
 }
@@ -103,5 +98,9 @@ std::string ModeEdit::getTitle()
     return title;
 }
 
-std::string ModeEdit::toString(Mode mode) {
+const char *ModeEdit::toString(Mode mode)
+{
+    if      (mode == Mode::automatic)   return "automatic";
+    else if (mode == Mode::manual)      return "manual";
+    else                                return "";
 }

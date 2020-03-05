@@ -18,7 +18,7 @@ enum Mode { manual, automatic };
 class ModeEdit: public PropertyEdit {
 public:
 	ModeEdit(LiquidCrystal *lcd_, std::string editTitle, Mode mode);
-	virtual ~ModeEdit();
+	virtual ~ModeEdit() { };
 	void increment();
 	void decrement();
 	void accept();
@@ -31,7 +31,7 @@ public:
     Mode getEdit();
 	void setValue(Mode value);
     std::string getTitle();
-    std::string toString(Mode mode);
+    const char *toString(Mode mode);
 private:
 	void save();
 	void displayEditValue();
