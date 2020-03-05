@@ -1,29 +1,22 @@
 #include "Controller.h"
 #include "math.h"
 
-Controller::Controller(Fan &fan_, Pressure &pressure_, IntegerEdit &fanEdit_, IntegerEdit &pressureEdit_, ModeEdit &state_)
-    : fan(fan_), pressure(pressure_), pressureEdit(pressureEdit_), fanEdit(fanEdit_), currentMode(state_)
-{
-
-    targetSpeed = 0;
-    targetPressure = 0;
-}
+Controller::Controller(Fan &fan_, Pressure &pressure_, IntegerEdit &targetSpeed_, IntegerEdit &targetPressure_, ModeEdit &state_)
+    : fan(fan_), pressure(pressure_), targetSpeed(targetSpeed_), targetPressure(targetPressure_), currentMode(state_)
+{ }
 
 void Controller::updatePeripherals() {
-    targetSpeed = fanEdit.getValue();
-    targetPressure = pressureEdit.getValue();
     switch (currentMode.getValue()) {
 
     case controllerMode::manual:
-        fan.setSpeed(targetSpeed);
+        fan.setSpeed(targetSpeed.getValue());
         break;
 
     case controllerMode::automatic:
-        int16_t offset = targetPressure - pressure.getPressure();
+        int16_t offset = targetPressure.getValue() - pressure.getPressure();
         if (offset < 0) offset = -sqrt(abs(offset));
         else            offset =  sqrt(abs(offset));
         fan.setSpeed(fan.getSpeed() + offset);
         break;
     }
 }
-

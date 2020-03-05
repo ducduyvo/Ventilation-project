@@ -8,22 +8,20 @@
 
 class Controller {
 public:
-    Controller(Fan &fan_, Pressure &pressure_, IntegerEdit &fanEdit_, IntegerEdit &pressureEdit_, ModeEdit &state_);
+    Controller(Fan &fan_, Pressure &pressure_, IntegerEdit &targetSpeed_, IntegerEdit &targetPressure_, ModeEdit &state_);
     virtual ~Controller(){};
     void updatePeripherals();
-    void setTargetSpeed(uint8_t targetSpeed_) { targetSpeed = targetSpeed_; }
-    void setTargetPressure(uint8_t targetPressure_) { targetPressure = targetPressure_; }
-    uint8_t getTargetSpeed() { return targetSpeed; }
-    uint8_t getTargetPressure() { return targetPressure; }
+    void setTargetSpeed(uint8_t targetSpeed_) { targetSpeed.setValue(targetSpeed_); }
+    void setTargetPressure(uint8_t targetPressure_) { targetPressure.setValue(targetPressure_); }
+    uint8_t getTargetSpeed() { return targetSpeed.getValue(); }
+    uint8_t getTargetPressure() { return targetPressure.getValue(); }
 
 private:
     Fan &fan;
     Pressure &pressure;
-    IntegerEdit &fanEdit;
-    IntegerEdit &pressureEdit;
+    IntegerEdit &targetSpeed;      // in percent
+    IntegerEdit &targetPressure; // in pascal
     ModeEdit &currentMode;
-    uint16_t targetSpeed;   // in percent
-    uint8_t targetPressure; // in pascal
 };
 
 #endif /* CONTROLLER_H_ */
