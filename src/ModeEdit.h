@@ -14,11 +14,11 @@
 #include <string>
 
 
-enum controllerMode { manual, automatic }; // TODO Think about where to put this enum (own file?)
 
 class ModeEdit: public PropertyEdit {
 public:
-	ModeEdit(LiquidCrystal *lcd_, std::string editTitle, controllerMode mode);
+    enum Mode { manual, automatic };
+	ModeEdit(LiquidCrystal *lcd_, std::string editTitle, Mode mode);
 	virtual ~ModeEdit();
 	void increment();
 	void decrement();
@@ -28,17 +28,17 @@ public:
 	void changeState();
 	bool getFocus();
 	void display();
-	controllerMode getValue();
-    controllerMode getEdit();
-	void setValue(controllerMode value);
+	Mode getValue();
+    Mode getEdit();
+	void setValue(Mode value);
     std::string getTitle();
 private:
 	void save();
 	void displayEditValue();
 	LiquidCrystal *lcd;
 	std::string title;
-	controllerMode value;
-	controllerMode edit;
+	Mode value;
+	Mode edit;
 	bool focus;
 };
 

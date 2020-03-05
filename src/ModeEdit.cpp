@@ -9,7 +9,7 @@
 #include "ModeEdit.h"
 #include <cstdio>
 
-ModeEdit::ModeEdit(LiquidCrystal *lcd_, std::string editTitle, controllerMode mode) : lcd(lcd_),
+ModeEdit::ModeEdit(LiquidCrystal *lcd_, std::string editTitle, Mode mode) : lcd(lcd_),
                                                                                       title(editTitle),
                                                                                       value(mode),
                                                                                       edit(mode)
@@ -24,13 +24,13 @@ ModeEdit::~ModeEdit()
 void ModeEdit::increment()
 {
     // TODO: create incrment function
-    edit = controllerMode::automatic;
+    edit = Mode::automatic;
 }
 
 void ModeEdit::decrement()
 {
     // TODO: create decrement function
-    edit = controllerMode::manual;
+    edit = Mode::manual;
 }
 void ModeEdit::changeState()
 {
@@ -81,17 +81,17 @@ void ModeEdit::save()
     // todo: save current value for example to EEPROM for permanent storage
 }
 
-controllerMode ModeEdit::getValue()
+ModeEdit::Mode ModeEdit::getValue()
 {
     return value;
 }
 
-controllerMode ModeEdit::getEdit()
+ModeEdit::Mode ModeEdit::getEdit()
 {
     return edit;
 }
 
-void ModeEdit::setValue(controllerMode value)
+void ModeEdit::setValue(Mode value)
 {
     edit = value;
     this->value = edit;
