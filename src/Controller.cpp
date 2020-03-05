@@ -8,11 +8,11 @@ Controller::Controller(Fan &fan_, Pressure &pressure_, IntegerEdit &targetSpeed_
 void Controller::updatePeripherals() {
     switch (currentMode.getValue()) {
 
-        case ModeEdit::Mode::manual:
+        case Mode::manual:
         fan.setSpeed(targetSpeed.getValue());
         break;
 
-        case ModeEdit::Mode::automatic:
+        case Mode::automatic:
         int16_t offset = targetPressure.getValue() - pressure.getPressure();
         if (offset < 0) offset = -sqrt(abs(offset));
         else            offset =  sqrt(abs(offset));

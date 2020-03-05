@@ -60,7 +60,7 @@ static Controller *controller;
 
 IntegerEdit targetSpeed(lcd, "Speed", 0, 100, 10);
 IntegerEdit targetPressure(lcd, "Pressure", 0, 120, 10);
-ModeEdit modeEdit(lcd, "Mode", ModeEdit::Mode::automatic);
+ModeEdit modeEdit(lcd, "Mode", Mode::automatic);
 
 #ifdef __cplusplus
 extern "C"
@@ -225,11 +225,11 @@ int main(void)
     menu.event(MenuItem::show); // display first menu item
 
     // while (1) {
-    //     if (currentState == ModeEdit::Mode::manual) {
+    //     if (currentState == Mode::manual) {
     //         fan.setSpeed(50);
     //     }
 
-    //     else if (currentState == ModeEdit::Mode::automatic) {
+    //     else if (currentState == Mode::automatic) {
     //         int offset = targetPressure - pressure.getPressure();
     //         if (offset < 0) offset = -sqrt(abs(offset));
     //         else offset = sqrt(abs(offset));

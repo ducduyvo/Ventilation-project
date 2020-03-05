@@ -13,11 +13,10 @@
 #include "LiquidCrystal.h"
 #include <string>
 
-
+enum Mode { manual, automatic };
 
 class ModeEdit: public PropertyEdit {
 public:
-    enum Mode { manual, automatic };
 	ModeEdit(LiquidCrystal *lcd_, std::string editTitle, Mode mode);
 	virtual ~ModeEdit();
 	void increment();
@@ -32,6 +31,7 @@ public:
     Mode getEdit();
 	void setValue(Mode value);
     std::string getTitle();
+    std::string toString(Mode mode);
 private:
 	void save();
 	void displayEditValue();

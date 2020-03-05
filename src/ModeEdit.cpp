@@ -81,12 +81,12 @@ void ModeEdit::save()
     // todo: save current value for example to EEPROM for permanent storage
 }
 
-ModeEdit::Mode ModeEdit::getValue()
+Mode ModeEdit::getValue()
 {
     return value;
 }
 
-ModeEdit::Mode ModeEdit::getEdit()
+Mode ModeEdit::getEdit()
 {
     return edit;
 }
@@ -101,4 +101,7 @@ void ModeEdit::setValue(Mode value)
 std::string ModeEdit::getTitle()
 {
     return title;
+}
+
+std::string ModeEdit::toString(Mode mode) {
 }
