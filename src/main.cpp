@@ -57,12 +57,11 @@
 static volatile int counter;
 //static volatile int Reach_counter=0;
 //static volatile int Stay_counter=0;
+static volatile int debounce;
 static volatile uint32_t systicks;
 static SimpleMenu menu; /* this could also be allocated from the heap */
 static LiquidCrystal *lcd;
 static Controller *controller;
-
-
 
 #ifdef __cplusplus
 extern "C"
@@ -74,10 +73,12 @@ extern "C"
  */
     void SysTick_Handler(void)
     {
+        if (debounce > 0)
+            debounce--;
         systicks++;
         if (counter > 0)
             counter--;
-/*
+        /*
         if (Reach_counter < REACHTIME)
         	Reach_counter++;
         	*/
@@ -117,24 +118,37 @@ extern "C"
     void PIN_INT0_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-        menu.event(MenuItem::up);
-        //modeEdit->increment();
-        printf("sw1\n");
+        if (debounce <= 0)
+        {
+            menu.event(MenuItem::up);
+            //modeEdit->increment();
+            printf("sw1\n");
+            debounce = 150;
+        }
     }
 
     void PIN_INT1_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-        menu.event(MenuItem::ok);
-        printf("sw2\n");
+        if (debounce <= 0)
+        {
+            menu.event(MenuItem::ok);
+            //modeEdit->increment();
+            printf("sw2\n");
+            debounce = 150;
+        }
     }
 
     void PIN_INT2_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-        printf("sw3\n");
-        menu.event(MenuItem::down);
-        //modeEdit->decrement();
+        if (debounce <= 0)
+        {
+            menu.event(MenuItem::down);
+            //modeEdit->increment();
+            printf("sw3\n");
+            debounce = 150;
+        }
     }
 }
 
@@ -230,8 +244,8 @@ int main(void)
 
     Fan fan;
     Pressure pressure;
-    int warningTimer=0;
-    int reachCounter=0;
+    int warningTimer = 0;
+    int reachCounter = 0;
 
     IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 10);
     IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 10);
@@ -251,27 +265,32 @@ int main(void)
         controller->updatePeripherals();
         printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
         printf("pressure = %d, speed =%.0f\n", pressure.getPressure(), fan.getSpeed());
-        printf("%d\n",reachCounter);
+        printf("%d\n", reachCounter);
 
-
-        if(controller->getTargetPressure()-pressure.getPressure()==0){
-        	reachCounter=0;
-        }else if (controller->getTargetPressure()-pressure.getPressure()!=0 && modeEdit.getValue()==Mode::automatic){
-        	reachCounter++;
-        }else if(modeEdit.getValue()==Mode::manual){
-        	reachCounter=0;
+        if (controller->getTargetPressure() - pressure.getPressure() == 0)
+        {
+            reachCounter = 0;
+        }
+        else if (controller->getTargetPressure() - pressure.getPressure() != 0 && modeEdit.getValue() == Mode::automatic)
+        {
+            reachCounter++;
+        }
+        else if (modeEdit.getValue() == Mode::manual)
+        {
+            reachCounter = 0;
         }
 
-    	if(reachCounter==REACHTIME){
-			printf("Unreachable\n");
-			lcd->clear();
-			lcd->setCursor(0, 0);
-			lcd->print("Can't reach");
-			lcd->setCursor(0, 1);
-			lcd->print("target pressure");
-			Sleep(3000);
-    	    reachCounter=0;
-    	}
+        if (reachCounter == REACHTIME)
+        {
+            printf("Unreachable\n");
+            lcd->clear();
+            lcd->setCursor(0, 0);
+            lcd->print("Can't reach");
+            lcd->setCursor(0, 1);
+            lcd->print("target pressure");
+            Sleep(3000);
+            reachCounter = 0;
+        }
 
         Sleep(100);
     }
