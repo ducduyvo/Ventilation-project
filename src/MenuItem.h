@@ -20,6 +20,7 @@ public:
 		back,
 		show
 	};
+	MenuItem() { };
 	MenuItem(PropertyEdit *property);
 	virtual ~MenuItem();
 	virtual bool event(menuEvent e);

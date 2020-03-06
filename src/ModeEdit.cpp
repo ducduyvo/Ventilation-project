@@ -100,7 +100,7 @@ std::string ModeEdit::getTitle()
 
 const char *ModeEdit::toString(Mode mode)
 {
-    if      (mode == Mode::automatic)   return "automatic";
-    else if (mode == Mode::manual)      return "manual";
+    if      (mode == Mode::automatic)   return "A";
+    else if (mode == Mode::manual)      return "M";
     else                                return "";
 }

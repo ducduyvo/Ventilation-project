@@ -10,15 +10,27 @@
 #include <vector>
 
 #include "MenuItem.h"
+#include "HomeScreen.h"
+
+#define HOMEPOS 0
+#define SPEEDPOS 1
+#define PRESSUREPOS 2
+#define MAX_ITEMS 3
 
 class SimpleMenu {
 public:
-	SimpleMenu();
+	enum homeEvent {
+		home,
+		speed,
+        pressure
+	};
+	SimpleMenu(MenuItem *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_);
 	virtual ~SimpleMenu();
 	void addItem(MenuItem *item);
 	void event(MenuItem::menuEvent e);
+	void event(homeEvent e);
 private:
-	std::vector<MenuItem *> items;
+    MenuItem *items[MAX_ITEMS];
 	int position;
 };
 
