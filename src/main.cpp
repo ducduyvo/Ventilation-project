@@ -37,6 +37,8 @@
 #include "SimpleMenu.h"
 #include "IntegerEdit.h"
 
+#define REACHTIME 65
+
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
@@ -53,6 +55,8 @@
  * Public functions
  ****************************************************************************/
 static volatile int counter;
+//static volatile int Reach_counter=0;
+//static volatile int Stay_counter=0;
 static volatile uint32_t systicks;
 static SimpleMenu menu; /* this could also be allocated from the heap */
 static LiquidCrystal *lcd;
@@ -73,6 +77,10 @@ extern "C"
         systicks++;
         if (counter > 0)
             counter--;
+/*
+        if (Reach_counter < REACHTIME)
+        	Reach_counter++;
+        	*/
     }
 #ifdef __cplusplus
 }
@@ -86,6 +94,17 @@ void Sleep(int ms)
         __WFI();
     }
 }
+
+/*
+bool unReachable(){
+    if (Reach_counter < REACHTIME)
+    {
+        return false;
+    }else{
+    	return true;
+    }
+}
+*/
 
 /* this function is required by the modbus library */
 uint32_t millis()
@@ -211,6 +230,8 @@ int main(void)
 
     Fan fan;
     Pressure pressure;
+    int warningTimer=0;
+    int reachCounter=0;
 
     IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 10);
     IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 10);
@@ -225,28 +246,33 @@ int main(void)
 
     menu.event(MenuItem::show); // display first menu item
 
-    // while (1) {
-    //     if (currentState == Mode::manual) {
-    //         fan.setSpeed(50);
-    //     }
-
-    //     else if (currentState == Mode::automatic) {
-    //         int offset = targetPressure - pressure.getPressure();
-    //         if (offset < 0) offset = -sqrt(abs(offset));
-    //         else offset = sqrt(abs(offset));
-    //         fan.setSpeed(fan.getSpeed() + offset);
-    //     }
-
-    //     else printf("Some sort of error happened\n");
-
-    //     printf("Pressure = %d, FanSpeed = %u\n", pressure.getPressure(), fan.getSpeed());
-    //     Sleep(100);
-    // }
     while (1)
     {
         controller->updatePeripherals();
         printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
         printf("pressure = %d, speed =%.0f\n", pressure.getPressure(), fan.getSpeed());
+        printf("%d\n",reachCounter);
+
+
+        if(controller->getTargetPressure()-pressure.getPressure()==0){
+        	reachCounter=0;
+        }else if (controller->getTargetPressure()-pressure.getPressure()!=0 && modeEdit.getValue()==Mode::automatic){
+        	reachCounter++;
+        }else if(modeEdit.getValue()==Mode::manual){
+        	reachCounter=0;
+        }
+
+    	if(reachCounter==REACHTIME){
+			printf("Unreachable\n");
+			lcd->clear();
+			lcd->setCursor(0, 0);
+			lcd->print("Can't reach");
+			lcd->setCursor(0, 1);
+			lcd->print("target pressure");
+			Sleep(3000);
+    	    reachCounter=0;
+    	}
+
         Sleep(100);
     }
 
