@@ -58,9 +58,7 @@ static SimpleMenu menu; /* this could also be allocated from the heap */
 static LiquidCrystal *lcd;
 static Controller *controller;
 
-IntegerEdit targetSpeed(lcd, "Speed", 0, 100, 10);
-IntegerEdit targetPressure(lcd, "Pressure", 0, 120, 10);
-ModeEdit modeEdit(lcd, "Mode", Mode::automatic);
+
 
 #ifdef __cplusplus
 extern "C"
@@ -214,9 +212,12 @@ int main(void)
     Fan fan;
     Pressure pressure;
 
+    IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 10);
+    IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 10);
+    ModeEdit modeEdit(lcd, "Mode", Mode::automatic);
     //int targetPressure = 50;
 
-    controller = new Controller(fan, pressure, targetSpeed, targetPressure, modeEdit);
+    controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, &modeEdit);
 
     menu.addItem(new MenuItem(&modeEdit));
     menu.addItem(new MenuItem(&targetSpeed));
@@ -244,8 +245,8 @@ int main(void)
     while (1)
     {
         controller->updatePeripherals();
-        printf("Pressure = %d, FanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
-
+        printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
+        printf("pressure = %d, speed =%.0f\n", pressure.getPressure(), fan.getSpeed());
         Sleep(100);
     }
 

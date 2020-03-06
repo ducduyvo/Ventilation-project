@@ -9,12 +9,12 @@ class Pressure {
 public:
     Pressure();
     virtual ~Pressure() { };
-    int getPressure();
+    int16_t getPressure();
 
 private:
     struct I2C_config i2c_config;
     I2C i2c;
-    int convertPressure(int pressure);
+    int16_t convertPressure(int16_t pressure);
     // TODO: altitude private member
 };
 
