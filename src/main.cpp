@@ -38,6 +38,10 @@
 #include "IntegerEdit.h"
 
 #define REACHTIME 65
+#define TICKRATE 1000
+#define MAXREPEAT 500
+#define MINREPEAT 10
+#define DEBOUNCE_TIME 50
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -54,35 +58,66 @@
 /*****************************************************************************
  * Public functions
  ****************************************************************************/
+
 static volatile int counter;
-//static volatile int Reach_counter=0;
-//static volatile int Stay_counter=0;
-static volatile int debounce;
-static volatile uint32_t systicks;
+static volatile int debounce = 0;
+static volatile uint32_t systicks = 0;
 static SimpleMenu menu; /* this could also be allocated from the heap */
 static LiquidCrystal *lcd;
 static Controller *controller;
+
+// No switch 2 since it's for the ok button and we dont need to repeat ok
+static volatile int intRepeat = 0;
+static volatile int previousIntRepeat = 0;
+static bool releasedSw0 = true;
+static bool releasedSw2 = true;
+
+void switchEvent(MenuItem::menuEvent event) {
+    if (intRepeat <= 0) {
+        menu.event(event);
+
+        intRepeat = previousIntRepeat / 1.5;
+
+        if (intRepeat < MINREPEAT) {
+            intRepeat = MINREPEAT;
+        }
+
+        else if (intRepeat > MAXREPEAT) {
+            intRepeat = MAXREPEAT;
+        }
+
+        previousIntRepeat = intRepeat;
+    }
+}
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-    /**
- * @brief	Handle interrupt from SysTick timer
- * @return	Nothing
- */
-    void SysTick_Handler(void)
-    {
-        if (debounce > 0)
-            debounce--;
-        systicks++;
-        if (counter > 0)
-            counter--;
-        /*
-        if (Reach_counter < REACHTIME)
-        	Reach_counter++;
-        	*/
+/**
+* @brief	Handle interrupt from SysTick timer
+* @return	Nothing
+*/
+void SysTick_Handler(void)
+{
+    /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
+    systicks++;
+    if (intRepeat > 0) {
+        intRepeat--;
     }
+    if (debounce > 0)
+        debounce--;
+    if (counter > 0)
+        counter--;
+
+    if (!releasedSw0) {
+        switchEvent(MenuItem::menuEvent::up);
+    }
+
+    if (!releasedSw2) {
+        switchEvent(MenuItem::menuEvent::down);
+    }
+}
 #ifdef __cplusplus
 }
 #endif
@@ -96,17 +131,6 @@ void Sleep(int ms)
     }
 }
 
-/*
-bool unReachable(){
-    if (Reach_counter < REACHTIME)
-    {
-        return false;
-    }else{
-    	return true;
-    }
-}
-*/
-
 /* this function is required by the modbus library */
 uint32_t millis()
 {
@@ -117,41 +141,60 @@ extern "C"
 {
     void PIN_INT0_IRQHandler(void)
     {
-        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-        if (debounce <= 0)
-        {
-            menu.event(MenuItem::up);
-            //modeEdit->increment();
-            printf("sw1\n");
-            debounce = 150;
+        // check whether the interrupt was low or high
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) & PININTCH(0)) {
+            printf("sw0 Low\n");
+            releasedSw0 = true;
+            LPC_GPIO_PIN_INT->FALL |= PININTCH(0);
         }
+
+        else {
+            if (debounce <= 0) {
+                menu.event(MenuItem::menuEvent::up);
+            }
+            printf("sw0 High\n");
+            releasedSw0 = false;
+            intRepeat = MAXREPEAT;
+            previousIntRepeat = intRepeat;
+        }
+
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+        debounce = DEBOUNCE_TIME / 2;
     }
 
     void PIN_INT1_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-        if (debounce <= 0)
-        {
+        printf("sw1\n");
+        if (debounce <= 0) {
             menu.event(MenuItem::ok);
-            //modeEdit->increment();
-            printf("sw2\n");
-            debounce = 150;
+            debounce = DEBOUNCE_TIME;
         }
     }
 
     void PIN_INT2_IRQHandler(void)
     {
-        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-        if (debounce <= 0)
-        {
-            menu.event(MenuItem::down);
-            //modeEdit->increment();
-            printf("sw3\n");
-            debounce = 150;
+        // check whether the interrupt was low or high
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) & PININTCH(2)) {
+            printf("sw2 Low\n");
+            releasedSw2 = true;
+            LPC_GPIO_PIN_INT->FALL |= PININTCH(2);
         }
+
+        else {
+            if (debounce <= 0) {
+                menu.event(MenuItem::menuEvent::down);
+            }
+            printf("sw2 High\n");
+            releasedSw2 = false;
+            intRepeat = MAXREPEAT;
+            previousIntRepeat = intRepeat;
+        }
+
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
+        debounce = DEBOUNCE_TIME / 2;
     }
 }
-
 /**
  * @brief	Main UART program body
  * @return	Always returns 1
@@ -182,16 +225,16 @@ int main(void)
 
     /* Enable and setup SysTick Timer at a periodic rate */
     Chip_Clock_SetSysTickClockDiv(1);
-    SysTick_Config(SystemCoreClock / 1000);
+    SysTick_Config(SystemCoreClock / TICKRATE);
 
     Board_LED_Set(0, false);
     Board_LED_Set(1, true);
     printf("Started\n"); // goes to ITM console if retarget_itm.c is included
 
     // Switches used to initalize the pins
-    DigitalIoPin sw1(1, 3, true, true, true);
-    DigitalIoPin sw2(0, 9, true, true, true);
-    DigitalIoPin sw3(0, 10, true, true, true);
+    DigitalIoPin sw0(1, 3, true, true, true);
+    DigitalIoPin sw1(0, 9, true, true, true);
+    DigitalIoPin sw2(0, 10, true, true, true);
 
     // Configure channel interrupt as edge sensitive and falling edge interrupt
     /* Initialize PININT driver */
@@ -211,6 +254,7 @@ int main(void)
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(0));
     Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(0));
+    Chip_PININT_EnableIntLow(LPC_GPIO_PIN_INT, PININTCH(0));
     NVIC_ClearPendingIRQ(PIN_INT0_IRQn);
     NVIC_EnableIRQ(PIN_INT0_IRQn);
 
@@ -227,6 +271,7 @@ int main(void)
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(2));
     Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(2));
+    Chip_PININT_EnableIntLow(LPC_GPIO_PIN_INT, PININTCH(2));
     NVIC_ClearPendingIRQ(PIN_INT2_IRQn);
     NVIC_EnableIRQ(PIN_INT2_IRQn);
 
@@ -247,8 +292,8 @@ int main(void)
     int warningTimer = 0;
     int reachCounter = 0;
 
-    IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 10);
-    IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 10);
+    IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 1);
+    IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 1);
     ModeEdit modeEdit(lcd, "Mode", Mode::automatic);
     //int targetPressure = 50;
 
@@ -263,9 +308,9 @@ int main(void)
     while (1)
     {
         controller->updatePeripherals();
-        printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
-        printf("pressure = %d, speed =%.0f\n", pressure.getPressure(), fan.getSpeed());
-        printf("%d\n", reachCounter);
+        /* printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed()); */
+        /* printf("pressure = %d, speed =%.0f\n", pressure.getPressure(), fan.getSpeed()); */
+        /* printf("%d\n", reachCounter); */
 
         if (controller->getTargetPressure() - pressure.getPressure() == 0)
         {
