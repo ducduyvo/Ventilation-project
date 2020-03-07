@@ -267,6 +267,7 @@ int main(void)
         printf("pressure = %d, speed =%.0f\n", pressure.getPressure(), fan.getSpeed());
         printf("%d\n", reachCounter);
 
+        /*
         if (controller->getTargetPressure() - pressure.getPressure() == 0)
         {
             reachCounter = 0;
@@ -279,6 +280,14 @@ int main(void)
         {
             reachCounter = 0;
         }
+        */
+
+        if (controller->pressureDifference() == 0) reachCounter = 0;
+
+        else if (controller->pressureDifference() != 0 && modeEdit.getValue() == Mode::automatic) reachCounter++;
+
+        else if (modeEdit.getValue() == Mode::manual) reachCounter = 0;
+
 
         if (reachCounter == REACHTIME)
         {
