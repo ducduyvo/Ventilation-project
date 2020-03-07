@@ -13,10 +13,24 @@ void Controller::updatePeripherals() {
         break;
 
         case Mode::automatic:
-        int16_t offset = targetPressure->getValue() - pressure->getPressure();
-        if (offset < 0) offset = -sqrt(abs(offset));
-        else            offset =  sqrt(abs(offset));
-        fan->setSpeed(fan->getSpeed() + offset);
-        break;
+        //int16_t offset = targetPressure->getValue() - pressure->getPressure();
+        int16_t difference = pressureDifference();
+        if (difference < 0) difference = -sqrt(abs(difference));
+        else                difference =  sqrt(abs(difference));
+        if(!isInRange(1)){
+			fan->setSpeed(fan->getSpeed() + difference);
+			break;
+        }
     }
+}
+
+int16_t Controller::pressureDifference(){
+	return targetPressure->getValue() - pressure->getPressure();
+}
+
+bool Controller::isInRange(int range){
+	if (pressureDifference() > (pressure->getPressure() - range) &&
+		pressureDifference() < (pressure->getPressure() + range))
+          return true;
+	else return false;
 }
