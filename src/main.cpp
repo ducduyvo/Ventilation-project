@@ -100,7 +100,7 @@ extern "C"
 */
 void SysTick_Handler(void)
 {
-    /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
+    printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2);
     systicks++;
     if (intRepeat > 0) {
         intRepeat--;
@@ -145,7 +145,6 @@ extern "C"
         if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) & PININTCH(0)) {
             printf("sw0 Low\n");
             releasedSw0 = true;
-            LPC_GPIO_PIN_INT->FALL |= PININTCH(0);
         }
 
         else {
@@ -156,10 +155,11 @@ extern "C"
             releasedSw0 = false;
             intRepeat = MAXREPEAT;
             previousIntRepeat = intRepeat;
+            Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(0));
         }
 
-        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
         debounce = DEBOUNCE_TIME / 2;
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     }
 
     void PIN_INT1_IRQHandler(void)
@@ -178,7 +178,6 @@ extern "C"
         if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) & PININTCH(2)) {
             printf("sw2 Low\n");
             releasedSw2 = true;
-            LPC_GPIO_PIN_INT->FALL |= PININTCH(2);
         }
 
         else {
@@ -189,10 +188,11 @@ extern "C"
             releasedSw2 = false;
             intRepeat = MAXREPEAT;
             previousIntRepeat = intRepeat;
+            Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2));
         }
 
-        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
         debounce = DEBOUNCE_TIME / 2;
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
     }
 }
 /**
