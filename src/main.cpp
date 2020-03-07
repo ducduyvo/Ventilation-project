@@ -100,7 +100,7 @@ extern "C"
 */
 void SysTick_Handler(void)
 {
-    printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2);
+    /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
     systicks++;
     if (intRepeat > 0) {
         intRepeat--;
@@ -142,7 +142,7 @@ extern "C"
     void PIN_INT0_IRQHandler(void)
     {
         // check whether the interrupt was low or high
-        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) & PININTCH(0)) {
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0)) {
             printf("sw0 Low\n");
             releasedSw0 = true;
         }
@@ -158,24 +158,26 @@ extern "C"
             Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(0));
         }
 
-        debounce = DEBOUNCE_TIME / 2;
+        debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     }
 
     void PIN_INT1_IRQHandler(void)
     {
-        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-        printf("sw1\n");
-        if (debounce <= 0) {
-            menu.event(MenuItem::ok);
-            debounce = DEBOUNCE_TIME;
+        if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
+            printf("sw1\n");
+            if (debounce <= 0) {
+                menu.event(MenuItem::ok);
+            }
         }
+        debounce = DEBOUNCE_TIME;
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
     }
 
     void PIN_INT2_IRQHandler(void)
     {
         // check whether the interrupt was low or high
-        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) & PININTCH(2)) {
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2)) {
             printf("sw2 Low\n");
             releasedSw2 = true;
         }
@@ -191,7 +193,7 @@ extern "C"
             Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2));
         }
 
-        debounce = DEBOUNCE_TIME / 2;
+        debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
     }
 }
@@ -263,6 +265,7 @@ int main(void)
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(1));
     Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(1));
+    Chip_PININT_EnableIntLow(LPC_GPIO_PIN_INT, PININTCH(1));
     NVIC_ClearPendingIRQ(PIN_INT1_IRQn);
     NVIC_EnableIRQ(PIN_INT1_IRQn);
 
