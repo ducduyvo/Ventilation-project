@@ -34,8 +34,9 @@
 #include "Pressure.h"
 #include "Controller.h"
 #include "math.h"
-#include "SimpleMenu.h"
+#include "Menu.h"
 #include "IntegerEdit.h"
+#include "HomeScreen.h"
 
 #define REACHTIME 65
 #define TICKRATE 1000
@@ -62,9 +63,11 @@
 static volatile int counter;
 static volatile int debounce = 0;
 static volatile uint32_t systicks = 0;
-static SimpleMenu menu; /* this could also be allocated from the heap */
+static volatile uint32_t systicks;
 static LiquidCrystal *lcd;
 static Controller *controller;
+static Printer printer;
+static Menu *menu;
 
 // No switch 2 since it's for the ok button and we dont need to repeat ok
 static volatile int intRepeat = 0;
@@ -100,6 +103,7 @@ extern "C"
 */
 void SysTick_Handler(void)
 {
+<<<<<<< ours
     /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
     systicks++;
     if (intRepeat > 0) {
@@ -216,14 +220,7 @@ int main(void)
     Chip_RIT_Init(LPC_RITIMER);
 #endif
 #endif
-    LpcPinMap none = {-1, -1}; // unused pin has negative values in it
-    LpcPinMap txpin = {0, 18}; // transmit pin that goes to debugger's UART->USB converter
-    LpcPinMap rxpin = {0, 13}; // receive pin that goes to debugger's UART->USB converter
-    LpcUartConfig cfg = {LPC_USART0, 115200, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_1, false, txpin, rxpin, none, none};
-    LpcUart dbgu(cfg);
 
-    /* Set up SWO to PIO1_2 */
-    Chip_SWM_MovablePortPinAssign(SWM_SWO_O, 1, 2); // Needed for SWO printf
 
     /* Enable and setup SysTick Timer at a periodic rate */
     Chip_Clock_SetSysTickClockDiv(1);
@@ -298,15 +295,18 @@ int main(void)
     IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 1);
     IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 1);
     ModeEdit modeEdit(lcd, "Mode", Mode::automatic);
-    //int targetPressure = 50;
 
     controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, &modeEdit);
 
-    menu.addItem(new MenuItem(&modeEdit));
-    menu.addItem(new MenuItem(&targetSpeed));
-    menu.addItem(new MenuItem(&targetPressure));
+    IntegerEdit targetSpeed(lcd, "Speed", 0, 100, 10);
+    IntegerEdit targetPressure(lcd, "Pressure", 0, 120, 10);
+    ModeEdit currentMode(lcd, "Mode", Mode::automatic);
+    MenuItem speedItem(&targetSpeed);
+    MenuItem pressureItem(&targetPressure);
+    HomeScreen homeScreen(lcd, &targetSpeed, &targetPressure, &currentMode);
 
-    menu.event(MenuItem::show); // display first menu item
+    menu = new Menu(&homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
+
 
     while (1)
     {
@@ -348,8 +348,6 @@ int main(void)
             Sleep(3000);
             reachCounter = 0;
         }
-
-        Sleep(100);
     }
 
     return 1;

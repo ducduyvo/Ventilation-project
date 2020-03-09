@@ -1,4 +1,3 @@
-
 /*
  * ModeEdit.h
  *
