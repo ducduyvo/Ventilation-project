@@ -17,10 +17,10 @@ void Controller::updatePeripherals() {
         int16_t difference = pressureDifference();
         if (difference < 0) difference = -sqrt(abs(difference));
         else                difference =  sqrt(abs(difference));
-        if(!isInRange(1)){
+        if(!isInRange(2)){
 			fan->setSpeed(fan->getSpeed() + difference);
-			break;
         }
+		break;
     }
 }
 
@@ -28,9 +28,17 @@ int16_t Controller::pressureDifference(){
 	return targetPressure->getValue() - pressure->getPressure();
 }
 
+/*
 bool Controller::isInRange(int range){
 	if (pressureDifference() > (pressure->getPressure() - range) &&
 		pressureDifference() < (pressure->getPressure() + range))
+          return true;
+	else return false;
+}
+*/
+bool Controller::isInRange(int range){
+	if (pressureDifference() > -range &&
+		pressureDifference() <  range)
           return true;
 	else return false;
 }

@@ -311,8 +311,8 @@ int main(void)
     while (1)
     {
         controller->updatePeripherals();
-        /* printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed()); */
-        /* printf("pressure = %d, speed =%.0f\n", pressure.getPressure(), fan.getSpeed()); */
+        printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
+         printf("pressure = %d, speed =%u\n", pressure.getPressure(), fan.getSpeed());
         /* printf("%d\n", reachCounter); */
 
         /*
