@@ -10,8 +10,6 @@
 #include <cstdio>
 #include <stdio.h>
 
-MenuItem::MenuItem(PropertyEdit *property): pe(property) { }
-
 HomeScreen::HomeScreen(LiquidCrystal *lcd_, IntegerEdit *Speed_, IntegerEdit *Pressure_, ModeEdit *mode_) :
     lcd(lcd_), speed(Speed_), pressure(Pressure_), mode(mode_)
 {
@@ -19,6 +17,7 @@ HomeScreen::HomeScreen(LiquidCrystal *lcd_, IntegerEdit *Speed_, IntegerEdit *Pr
 
 void HomeScreen::display() {
     lcd->clear();
+
     // First row
     lcd->setCursor(0,0);
     char s[17];
@@ -31,14 +30,16 @@ void HomeScreen::display() {
     lcd->print(s);
 }
 
-bool HomeScreen::event(menuEvent e) {
-
+void HomeScreen::event(menuEvent e) {
     switch (e) {
-        case show:
-            break;
-        case ok:
-            mode->changeState();
-        default:
-            break;
+    case ok:
+        mode->changeState();
+        display();
+        break;
+    case show:
+        display();
+        break;
+    default:
+        break;
     }
 }

@@ -23,7 +23,7 @@ public:
 	MenuItem() { };
 	MenuItem(PropertyEdit *property);
 	virtual ~MenuItem();
-	virtual bool event(menuEvent e);
+	virtual void event(menuEvent e);
 
 private:
 	PropertyEdit *pe;
