@@ -29,6 +29,7 @@ void ModeEdit::decrement()
 void ModeEdit::changeState()
 {
     edit = Mode(!edit);
+    accept();
 }
 
 void ModeEdit::accept()

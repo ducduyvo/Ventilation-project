@@ -34,8 +34,9 @@
 #include "Pressure.h"
 #include "Controller.h"
 #include "math.h"
-#include "SimpleMenu.h"
+#include "Menu.h"
 #include "IntegerEdit.h"
+#include "HomeScreen.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -54,28 +55,26 @@
  ****************************************************************************/
 static volatile int counter;
 static volatile uint32_t systicks;
-static SimpleMenu menu; /* this could also be allocated from the heap */
 static LiquidCrystal *lcd;
 static Controller *controller;
+static Printer printer;
+static Menu *menu;
 
-IntegerEdit targetSpeed(lcd, "Speed", 0, 100, 10);
-IntegerEdit targetPressure(lcd, "Pressure", 0, 120, 10);
-ModeEdit modeEdit(lcd, "Mode", Mode::automatic);
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-    /**
- * @brief	Handle interrupt from SysTick timer
- * @return	Nothing
- */
-    void SysTick_Handler(void)
-    {
-        systicks++;
-        if (counter > 0)
-            counter--;
-    }
+/**
+* @brief	Handle interrupt from SysTick timer
+* @return	Nothing
+*/
+void SysTick_Handler(void)
+{
+    systicks++;
+    if (counter > 0)
+        counter--;
+}
 #ifdef __cplusplus
 }
 #endif
@@ -100,24 +99,22 @@ extern "C"
     void PIN_INT0_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-        menu.event(MenuItem::up);
-        //modeEdit->increment();
-        printf("sw1\n");
+        menu->event(MenuItem::up);
+        printer.print("sw1\n");
     }
 
     void PIN_INT1_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-        menu.event(MenuItem::ok);
-        printf("sw2\n");
+        menu->event(MenuItem::ok);
+        printer.print("sw2\n");
     }
 
     void PIN_INT2_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-        printf("sw3\n");
-        menu.event(MenuItem::down);
-        //modeEdit->decrement();
+        printer.print("sw3\n");
+        menu->event(MenuItem::down);
     }
 }
 
@@ -140,14 +137,7 @@ int main(void)
     Chip_RIT_Init(LPC_RITIMER);
 #endif
 #endif
-    LpcPinMap none = {-1, -1}; // unused pin has negative values in it
-    LpcPinMap txpin = {0, 18}; // transmit pin that goes to debugger's UART->USB converter
-    LpcPinMap rxpin = {0, 13}; // receive pin that goes to debugger's UART->USB converter
-    LpcUartConfig cfg = {LPC_USART0, 115200, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_1, false, txpin, rxpin, none, none};
-    LpcUart dbgu(cfg);
 
-    /* Set up SWO to PIO1_2 */
-    Chip_SWM_MovablePortPinAssign(SWM_SWO_O, 1, 2); // Needed for SWO printf
 
     /* Enable and setup SysTick Timer at a periodic rate */
     Chip_Clock_SetSysTickClockDiv(1);
@@ -155,12 +145,7 @@ int main(void)
 
     Board_LED_Set(0, false);
     Board_LED_Set(1, true);
-    printf("Started\n"); // goes to ITM console if retarget_itm.c is included
-
-    // Switches used to initalize the pins
-    DigitalIoPin sw1(1, 3, true, true, true);
-    DigitalIoPin sw2(0, 9, true, true, true);
-    DigitalIoPin sw3(0, 10, true, true, true);
+    printer.print("Started\n"); // goes to ITM console if retarget_itm.c is included
 
     // Configure channel interrupt as edge sensitive and falling edge interrupt
     /* Initialize PININT driver */
@@ -176,7 +161,7 @@ int main(void)
 
     // Confiure interrupts
     // switch 1
-    Chip_INMUX_PinIntSel(0, 1, 3);
+    Chip_INMUX_PinIntSel(0, 0, 17);
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(0));
     Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(0));
@@ -184,7 +169,7 @@ int main(void)
     NVIC_EnableIRQ(PIN_INT0_IRQn);
 
     // switch 2
-    Chip_INMUX_PinIntSel(1, 0, 9);
+    Chip_INMUX_PinIntSel(1, 1, 11);
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(1));
     Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(1));
@@ -192,7 +177,7 @@ int main(void)
     NVIC_EnableIRQ(PIN_INT1_IRQn);
 
     // switch 3
-    Chip_INMUX_PinIntSel(2, 0, 10);
+    Chip_INMUX_PinIntSel(2, 1, 9);
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(2));
     Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(2));
@@ -209,44 +194,38 @@ int main(void)
     lcd = new LiquidCrystal(&rs, &en, &d4, &d5, &d6, &d7);
     lcd->begin(16, 2);
     lcd->setCursor(0, 0);
-    lcd->print("hello");
 
-    Fan fan;
-    Pressure pressure;
+    IntegerEdit targetSpeed(lcd, "Speed", 0, 100, 10);
+    IntegerEdit targetPressure(lcd, "Pressure", 0, 120, 10);
+    ModeEdit currentMode(lcd, "Mode", Mode::automatic);
+    MenuItem speedItem(&targetSpeed);
+    MenuItem pressureItem(&targetPressure);
+    HomeScreen homeScreen(lcd, &targetSpeed, &targetPressure, &currentMode);
+
+    menu = new Menu(&homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
+    /* Fan fan; */
+    /* Pressure pressure; */
 
     //int targetPressure = 50;
 
-    controller = new Controller(fan, pressure, targetSpeed, targetPressure, modeEdit);
+    /* controller = new Controller(fan, pressure, targetSpeed, targetPressure, currentMode); */
 
-    menu.addItem(new MenuItem(&modeEdit));
-    menu.addItem(new MenuItem(&targetSpeed));
-    menu.addItem(new MenuItem(&targetPressure));
+    lcd->print("hello");
+    printer.print("test1\n");
+    menu->event(MenuItem::show); // display first menu item
+    printer.print("test2\n");
 
-    menu.event(MenuItem::show); // display first menu item
+    // Switches used to initalize the pins
+    DigitalIoPin sw0(0, 17, true, true, true);
+    DigitalIoPin sw1(1, 11, true, true, true);
+    DigitalIoPin sw2(1, 9, true, true, true);
 
-    // while (1) {
-    //     if (currentState == Mode::manual) {
-    //         fan.setSpeed(50);
-    //     }
-
-    //     else if (currentState == Mode::automatic) {
-    //         int offset = targetPressure - pressure.getPressure();
-    //         if (offset < 0) offset = -sqrt(abs(offset));
-    //         else offset = sqrt(abs(offset));
-    //         fan.setSpeed(fan.getSpeed() + offset);
-    //     }
-
-    //     else printf("Some sort of error happened\n");
-
-    //     printf("Pressure = %d, FanSpeed = %u\n", pressure.getPressure(), fan.getSpeed());
-    //     Sleep(100);
-    // }
     while (1)
     {
-        controller->updatePeripherals();
-        printf("Pressure = %d, FanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
+        printer.print("mode = %s, targetSpeed = %u, targetPressure = %d\n",
+                      currentMode.toString(currentMode.getValue()), targetSpeed.getValue(), targetPressure.getValue());
 
-        Sleep(100);
+        Sleep(1000);
     }
 
     return 1;

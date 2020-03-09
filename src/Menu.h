@@ -11,6 +11,7 @@
 
 #include "HomeScreen.h"
 #include "MenuItem.h"
+#include "ModeEdit.h"
 
 #define HOMEPOS 0
 #define SPEEDPOS 1
@@ -19,15 +20,17 @@
 
 class Menu {
 public:
-	Menu(HomeScreen *homeScreen_, PropertyEdit *targetSpeed_, PropertyEdit *targetPressure_);
+	Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_);
 	virtual ~Menu();
-	void event(menuEvent e);
+	void event(MenuItem::menuEvent e);
 private:
     MenuItem *items[3];
     HomeScreen *homeScreen;
-    PropertyEdit *targetSpeed;
-    PropertyEdit *targetPressure;
+    MenuItem *targetSpeed;
+    MenuItem *targetPressure;
+    ModeEdit *currentMode;
 	uint8_t position;
+    void switchPosition();
 };
 
 #endif /* MENU_H_ */

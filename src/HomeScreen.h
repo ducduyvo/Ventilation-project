@@ -15,7 +15,7 @@
 #include "MenuItem.h"
 #include <string>
 
-class HomeScreen : MenuItem {
+class HomeScreen : public MenuItem {
 public:
 	HomeScreen(LiquidCrystal *lcd_, IntegerEdit *Speed_, IntegerEdit *Pressure_, ModeEdit *mode_);
 	~HomeScreen() { };
@@ -27,7 +27,7 @@ public:
     const char *getSpeedTitle() { return speedTitle.c_str(); }
     const char *getPressureTitle() { return pressureTitle.c_str(); }
     void display();
-    virtual void event(menuEvent e);
+    void event(menuEvent e);
 
 private:
     LiquidCrystal *lcd;
@@ -35,9 +35,9 @@ private:
     IntegerEdit *pressure;   // in pascal
     ModeEdit *mode;
 
-    std::string modeTitle = "";
-    std::string speedTitle = "";
-    std::string pressureTitle = "";
+    std::string modeTitle = "MODE";
+    std::string speedTitle = "S";
+    std::string pressureTitle = "P";
 
 };
 
