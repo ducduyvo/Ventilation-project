@@ -1,11 +1,11 @@
 #include "DigitalIoPin.h"
 
 #if defined (__USE_LPCOPEN)
-#if defined(NO_BOARD_LIB)
-#include "chip.h"
-#else
-#include "board.h"
-#endif
+    #if defined(NO_BOARD_LIB)
+        #include "chip.h"
+    #else
+        #include "board.h"
+    #endif
 #endif
 
 DigitalIoPin::DigitalIoPin(int port_, int pin_, bool input_, bool pullup_, bool invert_, const char *name_) :
@@ -17,8 +17,8 @@ DigitalIoPin::DigitalIoPin(int port_, int pin_, bool input_, bool pullup_, bool 
     name(name_)
 {
     Chip_IOCON_PinMuxSet(LPC_IOCON, port, pin, (IOCON_DIGMODE_EN  |
-                ((pullup) ? (IOCON_MODE_PULLUP) : (0)) |
-                ((invert) ? (IOCON_INV_EN) : (0))));
+                         ((pullup) ? (IOCON_MODE_PULLUP) : (0)) |
+                         ((invert) ? (IOCON_INV_EN) : (0))));
     if (input) {
         Chip_GPIO_SetPinDIRInput(LPC_GPIO, port_, pin_);
     }
@@ -27,16 +27,18 @@ DigitalIoPin::DigitalIoPin(int port_, int pin_, bool input_, bool pullup_, bool 
     }
 }
 
-int DigitalIoPin::measure_press() {
+int DigitalIoPin::measure_press()
+{
     int time = 0;
-    while(read()) {
+    while (read()) {
         Sleep(10);
         time += 10;
     }
     return time;
 }
 
-void DigitalIoPin::write(bool on) {
+void DigitalIoPin::write(bool on)
+{
     if (on) {
         Chip_GPIO_SetPinState(LPC_GPIO, port, pin, !invert);
     }
@@ -45,10 +47,12 @@ void DigitalIoPin::write(bool on) {
     }
 }
 
-bool DigitalIoPin::read() {
+bool DigitalIoPin::read()
+{
     return Chip_GPIO_GetPinState(LPC_GPIO, port, pin);
 }
 
-void DigitalIoPin::toggle() {
+void DigitalIoPin::toggle()
+{
     Chip_GPIO_SetPinToggle(LPC_GPIO, port, pin);
 }

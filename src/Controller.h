@@ -9,7 +9,7 @@
 class Controller {
 public:
     Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_, IntegerEdit *targetPressure_, ModeEdit *state_);
-    virtual ~Controller(){};
+    virtual ~Controller() {};
     void updatePeripherals();
     int16_t pressureDifference();
     bool isInRange(int offset);

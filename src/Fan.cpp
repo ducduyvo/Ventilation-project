@@ -1,7 +1,8 @@
 #include "Fan.h"
 
 Fan::Fan() :
-    node(2), speed(&node, 1), controlWord(&node, 0), statusWord(&node, 3) {
+    node(2), speed(&node, 1), controlWord(&node, 0), statusWord(&node, 3)
+{
     node.begin(9600); // set transmission rate - other parameters are set inside the object and can't be changed here
 
     // need to use explicit conversion since printf's variable argument doesn't automatically convert this to an integer
@@ -32,19 +33,22 @@ Fan::Fan() :
     setFanSpeed(fanSpeed);
 }
 
-void Fan::setFanSpeed(uint16_t speed_) {
+void Fan::setFanSpeed(uint16_t speed_)
+{
     fanSpeed = speed_;
     /* printf("Set freq = %d\n", fanSpeed); // for debugging */
 }
 
-void Fan::setSpeed(uint8_t percent)  {
+void Fan::setSpeed(uint8_t percent)
+{
     if (percent > 100)     speed = MAX_SPEED;
     else if (percent < 0)  speed = MIN_SPEED;
     else                   speed = percent * 200;
     setFanSpeed(speed);
 }
 
-bool Fan::getStatusBit(uint8_t bit) {
+bool Fan::getStatusBit(uint8_t bit)
+{
     return (statusWord & (1 << bit));
 }
 

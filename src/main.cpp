@@ -9,11 +9,11 @@
  */
 
 #if defined(__USE_LPCOPEN)
-#if defined(NO_BOARD_LIB)
-#include "chip.h"
-#else
-#include "board.h"
-#endif
+    #if defined(NO_BOARD_LIB)
+        #include "chip.h"
+    #else
+        #include "board.h"
+    #endif
 #endif
 
 #include <cr_section_macros.h>
@@ -78,19 +78,16 @@ static bool releasedSw2 = true;
 
 void switchEvent(MenuItem::menuEvent event)
 {
-    if (intRepeat <= 0)
-    {
+    if (intRepeat <= 0) {
         menu->event(event);
 
         intRepeat = previousIntRepeat / 1.5;
 
-        if (intRepeat < MINREPEAT)
-        {
+        if (intRepeat < MINREPEAT) {
             intRepeat = MINREPEAT;
         }
 
-        else if (intRepeat > MAXREPEAT)
-        {
+        else if (intRepeat > MAXREPEAT) {
             intRepeat = MAXREPEAT;
         }
 
@@ -102,39 +99,36 @@ void switchEvent(MenuItem::menuEvent event)
 extern "C"
 {
 #endif
-    /**
+/**
 * @brief	Handle interrupt from SysTick timer
 * @return	Nothing
 */
-    void SysTick_Handler(void)
-    {
-        /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
-        systicks++;
-        backCounter--;
-        if (intRepeat > 0)
-        {
-            intRepeat--;
-        }
-        if (debounce > 0)
-            debounce--;
-        if (counter > 0)
-            counter--;
-
-        if (!releasedSw0)
-        {
-            switchEvent(MenuItem::menuEvent::up);
-        }
-
-        if (!releasedSw2)
-        {
-            switchEvent(MenuItem::menuEvent::down);
-        }
-        if(backCounter <= 0){
-            backCounter = 10000;
-            menu->event(MenuItem::menuEvent::back);
-        }
-
+void SysTick_Handler(void)
+{
+    /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
+    systicks++;
+    backCounter--;
+    if (intRepeat > 0) {
+        intRepeat--;
     }
+    if (debounce > 0)
+        debounce--;
+    if (counter > 0)
+        counter--;
+
+    if (!releasedSw0) {
+        switchEvent(MenuItem::menuEvent::up);
+    }
+
+    if (!releasedSw2) {
+        switchEvent(MenuItem::menuEvent::down);
+    }
+    if (backCounter <= 0) {
+        backCounter = 10000;
+        menu->event(MenuItem::menuEvent::back);
+    }
+
+}
 #ifdef __cplusplus
 }
 #endif
@@ -142,8 +136,7 @@ extern "C"
 void Sleep(int ms)
 {
     counter = ms;
-    while (counter > 0)
-    {
+    while (counter > 0) {
         __WFI();
     }
 }
@@ -159,16 +152,13 @@ extern "C"
     void PIN_INT0_IRQHandler(void)
     {
         // check whether the interrupt was low or high
-        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0))
-        {
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0)) {
             printf("sw0 Low\n");
             releasedSw0 = true;
         }
 
-        else
-        {
-            if (debounce <= 0)
-            {
+        else {
+            if (debounce <= 0) {
                 menu->event(MenuItem::menuEvent::up);
             }
             printf("sw0 High\n");
@@ -185,11 +175,9 @@ extern "C"
 
     void PIN_INT1_IRQHandler(void)
     {
-        if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1))
-        {
+        if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
             printf("sw1\n");
-            if (debounce <= 0)
-            {
+            if (debounce <= 0) {
                 menu->event(MenuItem::ok);
             }
         }
@@ -202,16 +190,13 @@ extern "C"
     void PIN_INT2_IRQHandler(void)
     {
         // check whether the interrupt was low or high
-        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2))
-        {
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2)) {
             printf("sw2 Low\n");
             releasedSw2 = true;
         }
 
-        else
-        {
-            if (debounce <= 0)
-            {
+        else {
+            if (debounce <= 0) {
                 menu->event(MenuItem::menuEvent::down);
             }
             printf("sw2 High\n");
@@ -236,7 +221,7 @@ int main(void)
 
 #if defined(__USE_LPCOPEN)
     // Read clock settings and update SystemCoreClock variable
-     SystemCoreClockUpdate();
+    SystemCoreClockUpdate();
 #if !defined(NO_BOARD_LIB)
     // Set up and initialize all required blocks and
     // functions related to the board hardware
@@ -323,8 +308,6 @@ int main(void)
 
     controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, &modeEdit);
 
-    //    IntegerEdit targetSpeed(lcd, "Speed", 0, 100, 10);
-    //    IntegerEdit targetPressure(lcd, "Pressure", 0, 120, 10);
     ModeEdit currentMode(lcd, "Mode", Mode::automatic);
     MenuItem speedItem(&targetSpeed);
     MenuItem pressureItem(&targetPressure);
@@ -332,24 +315,20 @@ int main(void)
 
     menu = new Menu(&homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
 
-    while (1)
-    {
+    while (1) {
         controller->updatePeripherals();
         printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
         printf("pressure = %d, speed =%u\n", pressure.getPressure(), fan.getSpeed());
         /* printf("%d\n", reachCounter); */
 
         /*
-        if (controller->getTargetPressure() - pressure.getPressure() == 0)
-        {
+        if (controller->getTargetPressure() - pressure.getPressure() == 0) {
             reachCounter = 0;
         }
-        else if (controller->getTargetPressure() - pressure.getPressure() != 0 && modeEdit.getValue() == Mode::automatic)
-        {
+        else if (controller->getTargetPressure() - pressure.getPressure() != 0 && modeEdit.getValue() == Mode::automatic) {
             reachCounter++;
         }
-        else if (modeEdit.getValue() == Mode::manual)
-        {
+        else if (modeEdit.getValue() == Mode::manual) {
             reachCounter = 0;
         }
         */
@@ -363,8 +342,7 @@ int main(void)
         else if (modeEdit.getValue() == Mode::manual)
             reachCounter = 0;
 
-        if (reachCounter == REACHTIME)
-        {
+        if (reachCounter == REACHTIME) {
             printf("Unreachable\n");
             lcd->clear();
             lcd->setCursor(0, 0);

@@ -49,50 +49,50 @@
 class LiquidCrystal {
 public:
 
-  LiquidCrystal(DigitalIoPin *rs,  DigitalIoPin *enable,
-			    DigitalIoPin *d0, DigitalIoPin *d1, DigitalIoPin *d2, DigitalIoPin *d3);
+    LiquidCrystal(DigitalIoPin *rs,  DigitalIoPin *enable,
+                  DigitalIoPin *d0, DigitalIoPin *d1, DigitalIoPin *d2, DigitalIoPin *d3);
 
-  void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
+    void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
 
-  void clear();
-  void home();
+    void clear();
+    void home();
 
-  void noDisplay();
-  void display();
-  void noBlink();
-  void blink();
-  void noCursor();
-  void cursor();
-  void scrollDisplayLeft();
-  void scrollDisplayRight();
-  void leftToRight();
-  void rightToLeft();
-  void autoscroll();
-  void noAutoscroll();
+    void noDisplay();
+    void display();
+    void noBlink();
+    void blink();
+    void noCursor();
+    void cursor();
+    void scrollDisplayLeft();
+    void scrollDisplayRight();
+    void leftToRight();
+    void rightToLeft();
+    void autoscroll();
+    void noAutoscroll();
 
-  void createChar(uint8_t, uint8_t[]);
-  void setCursor(uint8_t, uint8_t);
-  virtual size_t write(uint8_t);
-  void command(uint8_t);
-  void print(std::string const &s);
-  void print(const char *format, ...);
+    void createChar(uint8_t, uint8_t[]);
+    void setCursor(uint8_t, uint8_t);
+    virtual size_t write(uint8_t);
+    void command(uint8_t);
+    void print(std::string const &s);
+    void print(const char *format, ...);
 
 private:
-  void send(uint8_t, uint8_t);
-  void write4bits(uint8_t);
-  void pulseEnable();
+    void send(uint8_t, uint8_t);
+    void write4bits(uint8_t);
+    void pulseEnable();
 
-  DigitalIoPin *rs_pin; // LOW(false): command.  HIGH(true): character.
-  DigitalIoPin *enable_pin; // activated by a HIGH pulse.
-  DigitalIoPin *data_pins[4];
+    DigitalIoPin *rs_pin; // LOW(false): command.  HIGH(true): character.
+    DigitalIoPin *enable_pin; // activated by a HIGH pulse.
+    DigitalIoPin *data_pins[4];
 
-  uint8_t _displayfunction;
-  uint8_t _displaycontrol;
-  uint8_t _displaymode;
+    uint8_t _displayfunction;
+    uint8_t _displaycontrol;
+    uint8_t _displaymode;
 
-  uint8_t _initialized;
+    uint8_t _initialized;
 
-  uint8_t _numlines,_currline;
+    uint8_t _numlines,_currline;
 };
 
 #endif

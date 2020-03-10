@@ -3,9 +3,9 @@
 
 
 class Printer {
-    public:
-        Printer();
-        void print(const char *format, ...);
+public:
+    Printer();
+    void print(const char *format, ...);
 };
 
 #endif

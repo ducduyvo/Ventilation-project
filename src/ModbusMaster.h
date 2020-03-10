@@ -50,11 +50,11 @@ Set to 1 to enable debugging features within class:
 /* _____STANDARD INCLUDES____________________________________________________ */
 // include types & constants of Wiring core API
 #if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
+    #include "Arduino.h"
 #else
-//#include "WProgram.h"
-#include <stdint.h>
-#include <cstddef>
+    //#include "WProgram.h"
+    #include <stdint.h>
+    #include <cstddef>
 #endif
 
 uint32_t millis();
@@ -80,9 +80,8 @@ uint32_t millis();
 Arduino class library for communicating with Modbus slaves over
 RS232/485 (via RTU protocol).
 */
-class ModbusMaster
-{
-  public:
+class ModbusMaster {
+public:
     ModbusMaster();
     ModbusMaster(uint8_t);
     ModbusMaster(uint8_t, uint8_t);
@@ -232,7 +231,7 @@ class ModbusMaster
     uint8_t  readWriteMultipleRegisters(uint16_t, uint16_t, uint16_t, uint16_t);
     uint8_t  readWriteMultipleRegisters(uint16_t, uint16_t);
 
-  private:
+private:
     uint8_t  _u8SerialPort;                                      ///< serial port (0..3) initialized in constructor
     uint8_t  _u8MBSlave;                                         ///< Modbus slave (1..255) initialized in constructor
     uint16_t _u16BaudRate;                                       ///< baud rate (300..115200) initialized in begin()

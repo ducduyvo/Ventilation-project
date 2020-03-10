@@ -1,15 +1,15 @@
-    #ifndef FAN_H_
+#ifndef FAN_H_
 #define FAN_H_
 
 #include "ModbusMaster.h"
 #include "ModbusRegister.h"
 
 #if defined (__USE_LPCOPEN)
-#if defined(NO_BOARD_LIB)
-#include "chip.h"
-#else
-#include "board.h"
-#endif
+    #if defined(NO_BOARD_LIB)
+        #include "chip.h"
+    #else
+        #include "board.h"
+    #endif
 #endif
 
 void Sleep(int ms);
@@ -36,9 +36,9 @@ public:
 
 private:
     ModbusMaster node;
-	ModbusRegister speed;              // Used to control the motor speed (Reference 1)
-	ModbusRegister controlWord;        // Control register
-	ModbusRegister statusWord;         // Status word register
+    ModbusRegister speed;              // Used to control the motor speed (Reference 1)
+    ModbusRegister controlWord;        // Control register
+    ModbusRegister statusWord;         // Status word register
     uint16_t fanSpeed = 0;             // motor speed
     void setFanSpeed(uint16_t speed_); // set the motor speed according to speed variable
 };

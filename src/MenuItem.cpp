@@ -7,32 +7,35 @@
 
 #include "MenuItem.h"
 
-MenuItem::MenuItem(PropertyEdit *property): pe(property) {
+MenuItem::MenuItem(PropertyEdit *property): pe(property)
+{
 
 }
 
-MenuItem::~MenuItem() {
+MenuItem::~MenuItem()
+{
 
 }
 
-void MenuItem::event(menuEvent e) {
+void MenuItem::event(menuEvent e)
+{
     bool handled = true;
-    switch(e) {
-    case ok:
-        pe->accept();
-        break;
-    case back:
-        pe->cancel();
-        break;
-    case show:
-        break;
-    case up:
-        pe->increment();
-        break;
-    case down:
-        pe->decrement();
-        break;
+    switch (e) {
+        case ok:
+            pe->accept();
+            break;
+        case back:
+            pe->cancel();
+            break;
+        case show:
+            break;
+        case up:
+            pe->increment();
+            break;
+        case down:
+            pe->decrement();
+            break;
     }
-    if(handled) pe->display();
+    if (handled) pe->display();
 }
 

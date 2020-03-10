@@ -15,9 +15,9 @@
 #define OFFSET 17
 static Printer printer;
 
-HomeScreen::HomeScreen(LiquidCrystal *lcd_, IntegerEdit *Speed_, IntegerEdit *Pressure_, ModeEdit *mode_) : lcd(lcd_), speed(Speed_), pressure(Pressure_), mode(mode_)
-{
-}
+HomeScreen::HomeScreen(LiquidCrystal *lcd_, IntegerEdit *Speed_, IntegerEdit *Pressure_, ModeEdit *mode_)
+    : lcd(lcd_), speed(Speed_), pressure(Pressure_), mode(mode_)
+{ }
 
 void HomeScreen::display()
 {
@@ -48,16 +48,15 @@ void HomeScreen::display()
 
 void HomeScreen::event(menuEvent e)
 {
-    switch (e)
-    {
-    case ok:
-        mode->changeState();
-        display();
-        break;
-    case show:
-        display();
-        break;
-    default:
-        break;
+    switch (e) {
+        case ok:
+            mode->changeState();
+            display();
+            break;
+        case show:
+            display();
+            break;
+        default:
+            break;
     }
 }

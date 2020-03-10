@@ -44,7 +44,7 @@ void delayMicroseconds(unsigned int us)
 
 
 LiquidCrystal::LiquidCrystal(DigitalIoPin *rs,  DigitalIoPin *enable,
-        DigitalIoPin *d0, DigitalIoPin *d1, DigitalIoPin *d2, DigitalIoPin *d3)
+                             DigitalIoPin *d0, DigitalIoPin *d1, DigitalIoPin *d2, DigitalIoPin *d3)
 {
     rs_pin = rs;
     enable_pin = enable;
@@ -59,7 +59,8 @@ LiquidCrystal::LiquidCrystal(DigitalIoPin *rs,  DigitalIoPin *enable,
     begin(16, 2); // default to 16x2 display
 }
 
-void LiquidCrystal::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
+void LiquidCrystal::begin(uint8_t cols, uint8_t lines, uint8_t dotsize)
+{
     if (lines > 1) {
         _displayfunction |= LCD_2LINE;
     }
@@ -99,7 +100,8 @@ void LiquidCrystal::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
         // finally, set to 4-bit interface
         write4bits(0x02);
-    } else {
+    }
+    else {
         // this is according to the hitachi HD44780 datasheet
         // page 45 figure 23
 
@@ -152,7 +154,8 @@ void LiquidCrystal::print(std::string const &s)
 }
 
 
-void LiquidCrystal::print(const char *format, ...) {
+void LiquidCrystal::print(const char *format, ...)
+{
     char buffer [32];
     va_list argptr;
     va_start(argptr, format);
@@ -174,70 +177,83 @@ void LiquidCrystal::setCursor(uint8_t col, uint8_t row)
 }
 
 // Turn the display on/off (quickly)
-void LiquidCrystal::noDisplay() {
+void LiquidCrystal::noDisplay()
+{
     _displaycontrol &= ~LCD_DISPLAYON;
     command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
-void LiquidCrystal::display() {
+void LiquidCrystal::display()
+{
     _displaycontrol |= LCD_DISPLAYON;
     command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
 // Turns the underline cursor on/off
-void LiquidCrystal::noCursor() {
+void LiquidCrystal::noCursor()
+{
     _displaycontrol &= ~LCD_CURSORON;
     command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
-void LiquidCrystal::cursor() {
+void LiquidCrystal::cursor()
+{
     _displaycontrol |= LCD_CURSORON;
     command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
 // Turn on and off the blinking cursor
-void LiquidCrystal::noBlink() {
+void LiquidCrystal::noBlink()
+{
     _displaycontrol &= ~LCD_BLINKON;
     command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
-void LiquidCrystal::blink() {
+void LiquidCrystal::blink()
+{
     _displaycontrol |= LCD_BLINKON;
     command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
 // These commands scroll the display without changing the RAM
-void LiquidCrystal::scrollDisplayLeft(void) {
+void LiquidCrystal::scrollDisplayLeft(void)
+{
     command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
 }
-void LiquidCrystal::scrollDisplayRight(void) {
+void LiquidCrystal::scrollDisplayRight(void)
+{
     command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
 }
 
 // This is for text that flows Left to Right
-void LiquidCrystal::leftToRight(void) {
+void LiquidCrystal::leftToRight(void)
+{
     _displaymode |= LCD_ENTRYLEFT;
     command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // This is for text that flows Right to Left
-void LiquidCrystal::rightToLeft(void) {
+void LiquidCrystal::rightToLeft(void)
+{
     _displaymode &= ~LCD_ENTRYLEFT;
     command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // This will 'right justify' text from the cursor
-void LiquidCrystal::autoscroll(void) {
+void LiquidCrystal::autoscroll(void)
+{
     _displaymode |= LCD_ENTRYSHIFTINCREMENT;
     command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // This will 'left justify' text from the cursor
-void LiquidCrystal::noAutoscroll(void) {
+void LiquidCrystal::noAutoscroll(void)
+{
     _displaymode &= ~LCD_ENTRYSHIFTINCREMENT;
     command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // Allows us to fill the first 8 CGRAM locations
 // with custom characters
-void LiquidCrystal::createChar(uint8_t location, uint8_t charmap[]) {
+void LiquidCrystal::createChar(uint8_t location, uint8_t charmap[])
+{
     location &= 0x7; // we only have 8 locations 0-7
     command(LCD_SETCGRAMADDR | (location << 3));
     for (int i=0; i<8; i++) {
@@ -247,11 +263,13 @@ void LiquidCrystal::createChar(uint8_t location, uint8_t charmap[]) {
 
 /*********** mid level commands, for sending data/cmds */
 
-inline void LiquidCrystal::command(uint8_t value) {
+inline void LiquidCrystal::command(uint8_t value)
+{
     send(value, LOW);
 }
 
-inline size_t LiquidCrystal::write(uint8_t value) {
+inline size_t LiquidCrystal::write(uint8_t value)
+{
     send(value, HIGH);
     return 1; // assume sucess
 }
@@ -259,14 +277,16 @@ inline size_t LiquidCrystal::write(uint8_t value) {
 /************ low level data pushing commands **********/
 
 // write either command or data
-void LiquidCrystal::send(uint8_t value, uint8_t mode) {
+void LiquidCrystal::send(uint8_t value, uint8_t mode)
+{
     rs_pin->write(mode); //digitalWrite(_rs_pin, mode);
 
     write4bits(value>>4);
     write4bits(value);
 }
 
-void LiquidCrystal::pulseEnable(void) {
+void LiquidCrystal::pulseEnable(void)
+{
     enable_pin->write(false); //digitalWrite(_enable_pin, LOW);
     delayMicroseconds(1);
     enable_pin->write(true); //digitalWrite(_enable_pin, HIGH);
@@ -275,7 +295,8 @@ void LiquidCrystal::pulseEnable(void) {
     delayMicroseconds(100);   // commands need > 37us to settle
 }
 
-void LiquidCrystal::write4bits(uint8_t value) {
+void LiquidCrystal::write4bits(uint8_t value)
+{
     for (int i = 0; i < 4; i++) {
         data_pins[i]->write((value >> i) & 0x01); //digitalWrite(_data_pins[i], (value >> i) & 0x01);
     }

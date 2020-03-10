@@ -20,71 +20,85 @@ IntegerEdit::IntegerEdit(LiquidCrystal *lcd_, std::string editTitle, int min_, i
     focus = false;
 }
 
-IntegerEdit::~IntegerEdit() {
+IntegerEdit::~IntegerEdit()
+{
 }
 
-void IntegerEdit::increment() {
+void IntegerEdit::increment()
+{
     if (edit + step <= max) {
         edit += step;
     }
 }
 
-void IntegerEdit::decrement() {
+void IntegerEdit::decrement()
+{
     if (edit - step >= min) {
         edit -= step;
     }
 }
 
-void IntegerEdit::accept() {
+void IntegerEdit::accept()
+{
     save();
 }
 
-void IntegerEdit::cancel() {
+void IntegerEdit::cancel()
+{
     edit = value;
 }
 
-void IntegerEdit::setFocus(bool focus) {
+void IntegerEdit::setFocus(bool focus)
+{
     this->focus = focus;
 }
 
-bool IntegerEdit::getFocus() {
+bool IntegerEdit::getFocus()
+{
     return this->focus;
 }
 
-void IntegerEdit::display() {
+void IntegerEdit::display()
+{
     lcd->clear();
     lcd->setCursor(0,0);
     lcd->print(title);
     lcd->setCursor(0,1);
     char s[17];
-    if(focus) {
+    if (focus) {
         snprintf(s, 17, "     [%4d]     ", edit);
     }
     else {
-        snprintf(s, 17, "      %4d      ", edit); }
+        snprintf(s, 17, "      %4d      ", edit);
+    }
     lcd->print(s);
 }
 
 
-void IntegerEdit::save() {
+void IntegerEdit::save()
+{
     // set current value to be same as edit value
     value = edit;
     // todo: save current value for example to EEPROM for permanent storage
 }
 
-int IntegerEdit::getValue() {
+int IntegerEdit::getValue()
+{
     return value;
 }
 
-int IntegerEdit::getEdit() {
+int IntegerEdit::getEdit()
+{
     return edit;
 }
 
-void IntegerEdit::setValue(int value) {
+void IntegerEdit::setValue(int value)
+{
     edit = value;
     save();
 }
 
-std::string IntegerEdit::getTitle() {
+std::string IntegerEdit::getTitle()
+{
     return title;
 }

@@ -16,29 +16,29 @@ enum Mode { manual, automatic };
 
 class ModeEdit: public PropertyEdit {
 public:
-	ModeEdit(LiquidCrystal *lcd_, std::string editTitle, Mode mode);
-	virtual ~ModeEdit() { };
-	void increment();
-	void decrement();
-	void accept();
-	void cancel();
-	void setFocus(bool focus);
-	void changeState();
-	bool getFocus();
-	void display();
-	Mode getValue();
+    ModeEdit(LiquidCrystal *lcd_, std::string editTitle, Mode mode);
+    virtual ~ModeEdit() { };
+    void increment();
+    void decrement();
+    void accept();
+    void cancel();
+    void setFocus(bool focus);
+    void changeState();
+    bool getFocus();
+    void display();
+    Mode getValue();
     Mode getEdit();
-	void setValue(Mode value);
+    void setValue(Mode value);
     std::string getTitle();
     const char *toString(Mode mode);
 private:
-	void save();
-	void displayEditValue();
-	LiquidCrystal *lcd;
-	std::string title;
-	Mode value;
-	Mode edit;
-	bool focus;
+    void save();
+    void displayEditValue();
+    LiquidCrystal *lcd;
+    std::string title;
+    Mode value;
+    Mode edit;
+    bool focus;
 };
 
 #endif /* MODEEDIT_H_ */

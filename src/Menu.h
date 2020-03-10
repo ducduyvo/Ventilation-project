@@ -18,8 +18,7 @@
 #define PRESSUREPOS 2
 #define MAX_ITEMS 3
 
-class Menu
-{
+class Menu {
 public:
     Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_);
     virtual ~Menu();

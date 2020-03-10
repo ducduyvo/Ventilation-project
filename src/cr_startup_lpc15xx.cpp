@@ -39,7 +39,7 @@
 //
 //*****************************************************************************
 extern "C" {
-    extern void __libc_init_array(void);
+extern void __libc_init_array(void);
 }
 #endif
 #endif
@@ -226,23 +226,23 @@ WEAK extern void __valid_user_code_checksum();
 extern void (* const g_pfnVectors[])(void);
 __attribute__ ((used,section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
-	// Core Level - CM3
-	&_vStackTop,                       // The initial stack pointer
-	ResetISR,                          // The reset handler
-	NMI_Handler,                       // The NMI handler
-	HardFault_Handler,                 // The hard fault handler
-	MemManage_Handler,                 // The MPU fault handler
-	BusFault_Handler,                  // The bus fault handler
-	UsageFault_Handler,                // The usage fault handler
+    // Core Level - CM3
+    &_vStackTop,                       // The initial stack pointer
+    ResetISR,                          // The reset handler
+    NMI_Handler,                       // The NMI handler
+    HardFault_Handler,                 // The hard fault handler
+    MemManage_Handler,                 // The MPU fault handler
+    BusFault_Handler,                  // The bus fault handler
+    UsageFault_Handler,                // The usage fault handler
     __valid_user_code_checksum,        // LPC MCU Checksum
-	0,                                 // Reserved
-	0,                                 // Reserved
-	0,                                 // Reserved
-	SVC_Handler,                       // SVCall handler
-	DebugMon_Handler,                  // Debug monitor handler
-	0,                                 // Reserved
-	PendSV_Handler,                    // The PendSV handler
-	SysTick_Handler,                   // The SysTick handler
+    0,                                 // Reserved
+    0,                                 // Reserved
+    0,                                 // Reserved
+    SVC_Handler,                       // SVCall handler
+    DebugMon_Handler,                  // Debug monitor handler
+    0,                                 // Reserved
+    PendSV_Handler,                    // The PendSV handler
+    SysTick_Handler,                   // The SysTick handler
 
     // Chip Level - LPC15xx
 #if defined (USE_LPCOPEN_IRQHANDLER_NAMES)
@@ -351,7 +351,8 @@ void (* const g_pfnVectors[])(void) = {
 // memory.
 //*****************************************************************************
 __attribute__ ((section(".after_vectors")))
-void data_init(unsigned int romstart, unsigned int start, unsigned int len) {
+void data_init(unsigned int romstart, unsigned int start, unsigned int len)
+{
     unsigned int *pulDest = (unsigned int*) start;
     unsigned int *pulSrc = (unsigned int*) romstart;
     unsigned int loop;
@@ -360,7 +361,8 @@ void data_init(unsigned int romstart, unsigned int start, unsigned int len) {
 }
 
 __attribute__ ((section(".after_vectors")))
-void bss_init(unsigned int start, unsigned int len) {
+void bss_init(unsigned int start, unsigned int len)
+{
     unsigned int *pulDest = (unsigned int*) start;
     unsigned int loop;
     for (loop = 0; loop < len; loop = loop + 4)
@@ -387,7 +389,8 @@ extern unsigned int __bss_section_table_end;
 //*****************************************************************************
 __attribute__ ((section(".after_vectors")))
 void
-ResetISR(void) {
+ResetISR(void)
+{
 
     //
     // Copy the data sections from flash to SRAM.
@@ -412,14 +415,14 @@ ResetISR(void) {
         SectionLen = *SectionTableAddr++;
         bss_init(ExeAddr, SectionLen);
     }
-    
+
     // Optionally enable Cortex-M3 SWV trace (off by default at reset)
-    // Note - your board support must also set up the switch matrix 
+    // Note - your board support must also set up the switch matrix
     // so that SWO is output on the appropriate pin for your hardware
 #if !defined (DONT_ENABLE_SWVTRACECLK)
-	// Write 0x00000001 to TRACECLKDIV – Trace divider
-	volatile unsigned int *TRACECLKDIV = (unsigned int *) 0x400740D8;
-	*TRACECLKDIV = 1;
+    // Write 0x00000001 to TRACECLKDIV – Trace divider
+    volatile unsigned int *TRACECLKDIV = (unsigned int *) 0x400740D8;
+    *TRACECLKDIV = 1;
 #endif
 
 #if defined (__USE_CMSIS) || defined (__USE_LPCOPEN)
@@ -454,47 +457,56 @@ ResetISR(void) {
 //*****************************************************************************
 __attribute__ ((section(".after_vectors")))
 void NMI_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 __attribute__ ((section(".after_vectors")))
 void HardFault_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 __attribute__ ((section(".after_vectors")))
 void MemManage_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 __attribute__ ((section(".after_vectors")))
 void BusFault_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 __attribute__ ((section(".after_vectors")))
 void UsageFault_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 __attribute__ ((section(".after_vectors")))
 void SVC_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 __attribute__ ((section(".after_vectors")))
 void DebugMon_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 __attribute__ ((section(".after_vectors")))
 void PendSV_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 __attribute__ ((section(".after_vectors")))
 void SysTick_Handler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 //*****************************************************************************
@@ -505,7 +517,8 @@ void SysTick_Handler(void)
 //*****************************************************************************
 __attribute__ ((section(".after_vectors")))
 void IntDefaultHandler(void)
-{ while(1) {}
+{
+    while (1) {}
 }
 
 

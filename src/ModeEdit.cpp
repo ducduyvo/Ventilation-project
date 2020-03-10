@@ -59,12 +59,10 @@ void ModeEdit::display()
     lcd->print(title);
     lcd->setCursor(0, 1);
     char s[17];
-    if (focus)
-    {
+    if (focus) {
         snprintf(s, 17, "     [%4s]     ", toString(edit));
     }
-    else
-    {
+    else {
         snprintf(s, 17, "      %4s      ", toString(edit));
     }
     lcd->print(s);

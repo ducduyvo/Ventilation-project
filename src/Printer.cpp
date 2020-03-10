@@ -4,11 +4,13 @@
 #include <stdarg.h>     /* va_list, va_start, va_arg, va_end */
 
 
-Printer::Printer() {
+Printer::Printer()
+{
     ITM_init();
 }
 
-void Printer::print(const char *format, ...) {
+void Printer::print(const char *format, ...)
+{
     char buffer [256];
     va_list argptr;
     va_start(argptr, format);
