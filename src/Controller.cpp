@@ -28,16 +28,19 @@ void Controller::updatePeripherals()
 
             // // Calculate difference
             // int16_t difference = pressureDifference();
+            // double p = 0.1;
+            // double i = 0.5;
+            // double d = 0.01;
             // // Proportional term
-            // double Pout = 0.1 * difference;
+            // double Pout = p * difference;
 
             // // Integral term
             // integral += difference * 0.1;
-            // double Iout = 0.5 * integral;
+            // double Iout = i * integral;
 
             // // Derivative term
             // double derivative = (difference - preDifference) / 0.2;
-            // double Dout = 0.01 * derivative;
+            // double Dout = d * derivative;
 
             // // Calculate total output
             // double output = Pout + Iout + Dout;
@@ -65,8 +68,7 @@ bool Controller::isInRange(int range){
 */
 bool Controller::isInRange(int range)
 {
-    if (pressureDifference() >= -range &&
-            pressureDifference() <= range)
+    if (pressureDifference() <= abs(range))
         return true;
     else
         return false;

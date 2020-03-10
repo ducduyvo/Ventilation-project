@@ -13,17 +13,18 @@ public:
     void updatePeripherals();
     int16_t pressureDifference();
     bool isInRange(int offset);
-    void setTargetSpeed(uint8_t targetSpeed_) { targetSpeed->setValue(targetSpeed_); }
+    void setTargetSpeed(uint8_t targetSpeed_)       { targetSpeed->setValue(targetSpeed_); }
     void setTargetPressure(uint8_t targetPressure_) { targetPressure->setValue(targetPressure_); }
-    uint8_t getTargetSpeed() { return targetSpeed->getValue(); }
+    uint8_t getTargetSpeed()    { return targetSpeed->getValue(); }
     uint8_t getTargetPressure() { return targetPressure->getValue(); }
-    int16_t getDifference() {return pressureDifference();}
+    int16_t getDifference()     { return pressureDifference(); }
 
 
 
 private:
-    int16_t preDifference;
-    double integral;
+    // Since c11 it is allowed to initialize data members in header file
+    int16_t preDifference = 0;
+    double integral = 0;
     Fan *fan;
     Pressure *pressure;
     IntegerEdit *targetSpeed;      // in percent
