@@ -9,8 +9,7 @@
 #include "Printer.h"
 static Printer printer;
 
-Menu::Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_) :
-    homeScreen(homeScreen_), targetSpeed(targetSpeed_), targetPressure(targetPressure_), currentMode(currentMode_)
+Menu::Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_) : homeScreen(homeScreen_), targetSpeed(targetSpeed_), targetPressure(targetPressure_), currentMode(currentMode_)
 {
     items[HOMEPOS] = homeScreen;
     items[SPEEDPOS] = targetSpeed;
@@ -18,41 +17,47 @@ Menu::Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPres
     position = HOMEPOS;
 }
 
-Menu::~Menu() { }
+Menu::~Menu() {}
 
-
-void Menu::event(MenuItem::menuEvent e) {
+void Menu::event(MenuItem::menuEvent e)
+{
     printer.print("position = %u\n", position);
     items[position]->event(MenuItem::show);
-    switch (e) {
+    switch (e)
+    {
     case MenuItem::up:
-        if (position == HOMEPOS) {
+        if (position == HOMEPOS)
+        {
             switchPosition();
             items[position]->event(MenuItem::show);
         }
 
         // we werent on the homescreen so just send the up command
-        else {
+        else
+        {
             items[position]->event(e);
         }
         break;
 
     case MenuItem::down:
         // We are on homescreen so switch the position
-        if (position == HOMEPOS) {
+        if (position == HOMEPOS)
+        {
             switchPosition();
             items[position]->event(MenuItem::show);
         }
 
         // we werent on the homescreen so just send the up command
-        else {
+        else
+        {
             items[position]->event(e);
         }
         break;
 
     case MenuItem::ok:
         items[position]->event(e);
-        if (position != HOMEPOS) {
+        if (position != HOMEPOS)
+        {
             position = HOMEPOS;
         }
 
@@ -72,11 +77,14 @@ void Menu::event(MenuItem::menuEvent e) {
 }
 
 // Switch the position according to the current mode
-void Menu::switchPosition() {
-    if (currentMode->getValue() == Mode::manual) {
+void Menu::switchPosition()
+{
+    if (currentMode->getValue() == Mode::manual)
+    {
         position = SPEEDPOS;
     }
-    else if (currentMode->getValue() == Mode::automatic) {
+    else if (currentMode->getValue() == Mode::automatic)
+    {
         position = PRESSUREPOS;
     }
 }

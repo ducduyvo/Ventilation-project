@@ -75,17 +75,21 @@ static volatile int previousIntRepeat = 0;
 static bool releasedSw0 = true;
 static bool releasedSw2 = true;
 
-void switchEvent(MenuItem::menuEvent event) {
-    if (intRepeat <= 0) {
+void switchEvent(MenuItem::menuEvent event)
+{
+    if (intRepeat <= 0)
+    {
         menu.event(event);
 
         intRepeat = previousIntRepeat / 1.5;
 
-        if (intRepeat < MINREPEAT) {
+        if (intRepeat < MINREPEAT)
+        {
             intRepeat = MINREPEAT;
         }
 
-        else if (intRepeat > MAXREPEAT) {
+        else if (intRepeat > MAXREPEAT)
+        {
             intRepeat = MAXREPEAT;
         }
 
@@ -97,31 +101,34 @@ void switchEvent(MenuItem::menuEvent event) {
 extern "C"
 {
 #endif
-/**
+    /**
 * @brief	Handle interrupt from SysTick timer
 * @return	Nothing
 */
-void SysTick_Handler(void)
-{
+    void SysTick_Handler(void)
+    {
 <<<<<<< ours
-    /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
-    systicks++;
-    if (intRepeat > 0) {
-        intRepeat--;
-    }
-    if (debounce > 0)
-        debounce--;
-    if (counter > 0)
-        counter--;
+        /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
+        systicks++;
+        if (intRepeat > 0)
+        {
+            intRepeat--;
+        }
+        if (debounce > 0)
+            debounce--;
+        if (counter > 0)
+            counter--;
 
-    if (!releasedSw0) {
-        switchEvent(MenuItem::menuEvent::up);
-    }
+        if (!releasedSw0)
+        {
+            switchEvent(MenuItem::menuEvent::up);
+        }
 
-    if (!releasedSw2) {
-        switchEvent(MenuItem::menuEvent::down);
+        if (!releasedSw2)
+        {
+            switchEvent(MenuItem::menuEvent::down);
+        }
     }
-}
 #ifdef __cplusplus
 }
 #endif
@@ -146,13 +153,16 @@ extern "C"
     void PIN_INT0_IRQHandler(void)
     {
         // check whether the interrupt was low or high
-        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0)) {
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0))
+        {
             printf("sw0 Low\n");
             releasedSw0 = true;
         }
 
-        else {
-            if (debounce <= 0) {
+        else
+        {
+            if (debounce <= 0)
+            {
                 menu.event(MenuItem::menuEvent::up);
             }
             printf("sw0 High\n");
@@ -168,9 +178,11 @@ extern "C"
 
     void PIN_INT1_IRQHandler(void)
     {
-        if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
+        if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1))
+        {
             printf("sw1\n");
-            if (debounce <= 0) {
+            if (debounce <= 0)
+            {
                 menu.event(MenuItem::ok);
             }
         }
@@ -181,13 +193,16 @@ extern "C"
     void PIN_INT2_IRQHandler(void)
     {
         // check whether the interrupt was low or high
-        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2)) {
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2))
+        {
             printf("sw2 Low\n");
             releasedSw2 = true;
         }
 
-        else {
-            if (debounce <= 0) {
+        else
+        {
+            if (debounce <= 0)
+            {
                 menu.event(MenuItem::menuEvent::down);
             }
             printf("sw2 High\n");
@@ -220,7 +235,6 @@ int main(void)
     Chip_RIT_Init(LPC_RITIMER);
 #endif
 #endif
-
 
     /* Enable and setup SysTick Timer at a periodic rate */
     Chip_Clock_SetSysTickClockDiv(1);
@@ -307,12 +321,11 @@ int main(void)
 
     menu = new Menu(&homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
 
-
     while (1)
     {
         controller->updatePeripherals();
         printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
-         printf("pressure = %d, speed =%u\n", pressure.getPressure(), fan.getSpeed());
+        printf("pressure = %d, speed =%u\n", pressure.getPressure(), fan.getSpeed());
         /* printf("%d\n", reachCounter); */
 
         /*
@@ -330,12 +343,14 @@ int main(void)
         }
         */
 
-        if (controller->pressureDifference() == 0) reachCounter = 0;
+        if (controller->pressureDifference() == 0)
+            reachCounter = 0;
 
-        else if (controller->pressureDifference() != 0 && modeEdit.getValue() == Mode::automatic) reachCounter++;
+        else if (controller->pressureDifference() != 0 && modeEdit.getValue() == Mode::automatic)
+            reachCounter++;
 
-        else if (modeEdit.getValue() == Mode::manual) reachCounter = 0;
-
+        else if (modeEdit.getValue() == Mode::manual)
+            reachCounter = 0;
 
         if (reachCounter == REACHTIME)
         {

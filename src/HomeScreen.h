@@ -15,10 +15,11 @@
 #include "MenuItem.h"
 #include <string>
 
-class HomeScreen : public MenuItem {
+class HomeScreen : public MenuItem
+{
 public:
-	HomeScreen(LiquidCrystal *lcd_, IntegerEdit *Speed_, IntegerEdit *Pressure_, ModeEdit *mode_);
-	~HomeScreen() { };
+    HomeScreen(LiquidCrystal *lcd_, IntegerEdit *Speed_, IntegerEdit *Pressure_, ModeEdit *mode_);
+    ~HomeScreen(){};
     void setModeTitle(const char *title) { modeTitle = title; }
     void setSpeedTitle(const char *title) { speedTitle = title; }
     void setPressureTitle(const char *title) { pressureTitle = title; }
@@ -31,14 +32,13 @@ public:
 
 private:
     LiquidCrystal *lcd;
-    IntegerEdit *speed;      // in percent
-    IntegerEdit *pressure;   // in pascal
+    IntegerEdit *speed;    // in percent
+    IntegerEdit *pressure; // in pascal
     ModeEdit *mode;
 
     std::string modeTitle = "MODE";
     std::string speedTitle = "S";
     std::string pressureTitle = "P";
-
 };
 
 #endif /* HOMESCREEN_H_ */

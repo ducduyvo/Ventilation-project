@@ -18,18 +18,20 @@
 #define PRESSUREPOS 2
 #define MAX_ITEMS 3
 
-class Menu {
+class Menu
+{
 public:
-	Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_);
-	virtual ~Menu();
-	void event(MenuItem::menuEvent e);
+    Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_);
+    virtual ~Menu();
+    void event(MenuItem::menuEvent e);
+
 private:
     MenuItem *items[3];
     HomeScreen *homeScreen;
     MenuItem *targetSpeed;
     MenuItem *targetPressure;
     ModeEdit *currentMode;
-	uint8_t position;
+    uint8_t position;
     void switchPosition();
 };
 
