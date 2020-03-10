@@ -26,6 +26,27 @@ void Controller::updatePeripherals()
         {
             fan->setSpeed(fan->getSpeed() + difference);
         }
+
+        // // Calculate difference
+        // int16_t difference = pressureDifference();
+        // // Proportional term
+        // double Pout = 0.1 * difference;
+
+        // // Integral term
+        // _integral += difference * 0.1;
+        // double Iout = 0.5 * _integral;
+
+        // // Derivative term
+        // double derivative = (difference - preDifference) / 0.2;
+        // double Dout = 0.01 * derivative;
+
+        // // Calculate total output
+        // double output = Pout + Iout + Dout;
+
+        // preDifference = difference;
+
+        // fan->setSpeed(fan->getSpeed() + output);
+
         break;
     }
 }

@@ -63,6 +63,7 @@
 static volatile int counter;
 static volatile int debounce = 0;
 static volatile uint32_t systicks = 0;
+static volatile int backCounter = 10000;
 //static volatile uint32_t systicks;
 static LiquidCrystal *lcd;
 static Controller *controller;
@@ -109,6 +110,7 @@ extern "C"
     {
         /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
         systicks++;
+        backCounter--;
         if (intRepeat > 0)
         {
             intRepeat--;
@@ -127,6 +129,11 @@ extern "C"
         {
             switchEvent(MenuItem::menuEvent::down);
         }
+        if(backCounter <= 0){
+            backCounter = 10000;
+            menu->event(MenuItem::menuEvent::back);
+        }
+
     }
 #ifdef __cplusplus
 }
@@ -173,6 +180,7 @@ extern "C"
 
         debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+        backCounter = 10000;
     }
 
     void PIN_INT1_IRQHandler(void)
@@ -187,6 +195,8 @@ extern "C"
         }
         debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
+        backCounter = 10000;
+
     }
 
     void PIN_INT2_IRQHandler(void)
@@ -213,6 +223,8 @@ extern "C"
 
         debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
+        backCounter = 10000;
+
     }
 }
 /**
