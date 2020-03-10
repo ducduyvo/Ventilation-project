@@ -63,7 +63,7 @@
 static volatile int counter;
 static volatile int debounce = 0;
 static volatile uint32_t systicks = 0;
-static volatile uint32_t systicks;
+//static volatile uint32_t systicks;
 static LiquidCrystal *lcd;
 static Controller *controller;
 static Printer printer;
@@ -79,7 +79,7 @@ void switchEvent(MenuItem::menuEvent event)
 {
     if (intRepeat <= 0)
     {
-        menu.event(event);
+        menu->event(event);
 
         intRepeat = previousIntRepeat / 1.5;
 
@@ -107,7 +107,6 @@ extern "C"
 */
     void SysTick_Handler(void)
     {
-<<<<<<< ours
         /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
         systicks++;
         if (intRepeat > 0)
@@ -163,7 +162,7 @@ extern "C"
         {
             if (debounce <= 0)
             {
-                menu.event(MenuItem::menuEvent::up);
+                menu->event(MenuItem::menuEvent::up);
             }
             printf("sw0 High\n");
             releasedSw0 = false;
@@ -183,7 +182,7 @@ extern "C"
             printf("sw1\n");
             if (debounce <= 0)
             {
-                menu.event(MenuItem::ok);
+                menu->event(MenuItem::ok);
             }
         }
         debounce = DEBOUNCE_TIME;
@@ -203,7 +202,7 @@ extern "C"
         {
             if (debounce <= 0)
             {
-                menu.event(MenuItem::menuEvent::down);
+                menu->event(MenuItem::menuEvent::down);
             }
             printf("sw2 High\n");
             releasedSw2 = false;
@@ -225,7 +224,7 @@ int main(void)
 
 #if defined(__USE_LPCOPEN)
     // Read clock settings and update SystemCoreClock variable
-    SystemCoreClockUpdate();
+     SystemCoreClockUpdate();
 #if !defined(NO_BOARD_LIB)
     // Set up and initialize all required blocks and
     // functions related to the board hardware
@@ -312,8 +311,8 @@ int main(void)
 
     controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, &modeEdit);
 
-    IntegerEdit targetSpeed(lcd, "Speed", 0, 100, 10);
-    IntegerEdit targetPressure(lcd, "Pressure", 0, 120, 10);
+    //    IntegerEdit targetSpeed(lcd, "Speed", 0, 100, 10);
+    //    IntegerEdit targetPressure(lcd, "Pressure", 0, 120, 10);
     ModeEdit currentMode(lcd, "Mode", Mode::automatic);
     MenuItem speedItem(&targetSpeed);
     MenuItem pressureItem(&targetPressure);

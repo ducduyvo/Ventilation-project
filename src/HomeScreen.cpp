@@ -26,7 +26,7 @@ void HomeScreen::display()
     lcd->setCursor(0, 0);
     char buffer[OFFSET];
     snprintf(buffer, OFFSET, "%-6s%-5s%-5s", getModeTitle(), getSpeedTitle(), getPressureTitle());
-    lcd->print(s);
+    lcd->print(buffer);
 
     // Second row
     char speedString[OFFSET] = "";
@@ -43,7 +43,7 @@ void HomeScreen::display()
              mode->toString(mode->getValue()),
              speedString,
              pressureString);
-    lcd->print(s);
+    lcd->print(buffer);
 }
 
 void HomeScreen::event(menuEvent e)
