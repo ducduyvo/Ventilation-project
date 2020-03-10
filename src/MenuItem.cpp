@@ -19,23 +19,24 @@ MenuItem::~MenuItem()
 
 void MenuItem::event(menuEvent e)
 {
-    bool handled = true;
+    bool changed = false;
     switch (e) {
         case ok:
             pe->accept();
             break;
         case back:
             pe->cancel();
+            changed = true;
             break;
         case show:
             break;
         case up:
-            pe->increment();
+            changed = pe->increment();
             break;
         case down:
-            pe->decrement();
+            changed = pe->decrement();
             break;
     }
-    if (handled) pe->display();
+    if (changed) pe->display();
 }
 

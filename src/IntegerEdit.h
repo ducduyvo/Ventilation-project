@@ -16,8 +16,8 @@ class IntegerEdit: public PropertyEdit {
 public:
     IntegerEdit(LiquidCrystal *lcd_, std::string editTitle, int min_, int max_, int step_);
     virtual ~IntegerEdit();
-    void increment();
-    void decrement();
+    bool increment();
+    bool decrement();
     void accept();
     void cancel();
     void setFocus(bool focus);

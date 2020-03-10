@@ -18,8 +18,8 @@ class ModeEdit: public PropertyEdit {
 public:
     ModeEdit(LiquidCrystal *lcd_, std::string editTitle, Mode mode);
     virtual ~ModeEdit() { };
-    void increment();
-    void decrement();
+    bool increment();
+    bool decrement();
     void accept();
     void cancel();
     void setFocus(bool focus);

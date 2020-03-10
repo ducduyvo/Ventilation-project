@@ -6,10 +6,12 @@
  */
 
 #include "Menu.h"
-#include "Printer.h"
-static Printer printer;
 
-Menu::Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_) : homeScreen(homeScreen_), targetSpeed(targetSpeed_), targetPressure(targetPressure_), currentMode(currentMode_)
+Menu::Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_) :
+    homeScreen(homeScreen_),
+    targetSpeed(targetSpeed_),
+    targetPressure(targetPressure_),
+    currentMode(currentMode_)
 {
     items[HOMEPOS] = homeScreen;
     items[SPEEDPOS] = targetSpeed;
@@ -17,12 +19,10 @@ Menu::Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPres
     position = HOMEPOS;
 }
 
-Menu::~Menu() {}
+Menu::~Menu() { }
 
 void Menu::event(MenuItem::menuEvent e)
 {
-    printer.print("position = %u\n", position);
-    items[position]->event(MenuItem::show);
     switch (e) {
         case MenuItem::up:
             handleUpOrDown(e);
@@ -34,17 +34,22 @@ void Menu::event(MenuItem::menuEvent e)
 
         case MenuItem::ok:
             items[position]->event(e);
+            // if we are not on home screen we want to go back to it
             if (position != HOMEPOS) {
                 position = HOMEPOS;
+                homeScreen->display();
             }
-
-            items[position]->event(MenuItem::show);
             break;
 
+        // Always goes to back to homescreen
+        // Menuitems are not going to save their modified value
         case MenuItem::back:
-            items[position]->event(e);
-            position = HOMEPOS;
-            homeScreen->display();
+            if (position != HOMEPOS) {
+                items[position]->event(e);
+                position = HOMEPOS;
+                homeScreen->display();
+            }
+            // TODO: Is there anything we want to do if we press back on homescreen
             break;
 
         case MenuItem::show:
@@ -53,23 +58,24 @@ void Menu::event(MenuItem::menuEvent e)
     }
 }
 
-// Switch the position according to the current mode
-// Then update the screen
 void Menu::handleUpOrDown(MenuItem::menuEvent e)
 {
+    // We are on homescreen so we want to change the screen view according to
+    // the current mode thus we change the position variable
     if (position == HOMEPOS) {
-
         if (currentMode->getValue() == Mode::manual) {
             position = SPEEDPOS;
         }
         else if (currentMode->getValue() == Mode::automatic) {
             position = PRESSUREPOS;
         }
+        // call the correct show event
         items[position]->event(MenuItem::show);
     }
 
-    // we werent on the homescreen so just send the up/down event
-    // and the menu item can handle it
+    // we were on either pressure or speed menuitem
+    // so just send the up/down event and let them handle it
+    // menuitem is also going to do the screen updating if it has to
     else {
         items[position]->event(e);
     }

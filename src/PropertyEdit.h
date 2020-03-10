@@ -12,8 +12,8 @@ class PropertyEdit {
 public:
     PropertyEdit() {};
     virtual ~PropertyEdit() {};
-    virtual void increment() = 0;
-    virtual void decrement() = 0;
+    virtual bool increment() = 0;
+    virtual bool decrement() = 0; // returns if the value was changed
     virtual void accept() = 0;
     virtual void cancel() = 0;
     virtual void setFocus(bool focus) = 0;

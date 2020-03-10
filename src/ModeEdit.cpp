@@ -16,12 +16,12 @@ ModeEdit::ModeEdit(LiquidCrystal *lcd_, std::string editTitle, Mode mode) : lcd(
     focus = false;
 }
 
-void ModeEdit::increment()
+bool ModeEdit::increment()
 {
     changeState();
 }
 
-void ModeEdit::decrement()
+bool ModeEdit::decrement()
 {
     changeState();
 }

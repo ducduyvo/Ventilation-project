@@ -25,12 +25,12 @@ public:
     void event(MenuItem::menuEvent e);
 
 private:
-    MenuItem *items[3]; // Array holding all menuitems
+    MenuItem *items[MAX_ITEMS]; // Array holding all menuitems
     HomeScreen *homeScreen;
     MenuItem *targetSpeed;
     MenuItem *targetPressure;
     ModeEdit *currentMode;
-    uint8_t position;
+    uint8_t position; // position in the items array, defines for unique positions above the class
     void handleUpOrDown(MenuItem::menuEvent e);
 };
 

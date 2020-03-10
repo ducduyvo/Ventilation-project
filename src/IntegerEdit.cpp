@@ -24,18 +24,22 @@ IntegerEdit::~IntegerEdit()
 {
 }
 
-void IntegerEdit::increment()
+bool IntegerEdit::increment()
 {
     if (edit + step <= max) {
         edit += step;
+        return true;
     }
+    return false;
 }
 
-void IntegerEdit::decrement()
+bool IntegerEdit::decrement()
 {
     if (edit - step >= min) {
         edit -= step;
+        return true;
     }
+    return false;
 }
 
 void IntegerEdit::accept()
