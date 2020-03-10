@@ -23,7 +23,7 @@ public:
 
 private:
     int16_t preDifference;
-    double _integral;
+    double integral;
     Fan *fan;
     Pressure *pressure;
     IntegerEdit *targetSpeed;      // in percent

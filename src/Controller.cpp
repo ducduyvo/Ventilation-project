@@ -1,6 +1,7 @@
 #include "Controller.h"
 #include "math.h"
 
+
 Controller::Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_, IntegerEdit *targetPressure_, ModeEdit *state_)
     : fan(fan_), pressure(pressure_), targetSpeed(targetSpeed_), targetPressure(targetPressure_), currentMode(state_)
 {
@@ -31,8 +32,8 @@ void Controller::updatePeripherals()
             // double Pout = 0.1 * difference;
 
             // // Integral term
-            // _integral += difference * 0.1;
-            // double Iout = 0.5 * _integral;
+            // integral += difference * 0.1;
+            // double Iout = 0.5 * integral;
 
             // // Derivative term
             // double derivative = (difference - preDifference) / 0.2;

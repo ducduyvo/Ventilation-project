@@ -210,6 +210,52 @@ extern "C"
         backCounter = 10000;
 
     }
+    //     void PIN_INT0_IRQHandler(void)
+    // {
+    //     menu->event(MenuItem::up);
+    //     //modeEdit->increment();
+    //     printf("sw1\n");
+    //     if (debounce <= 0)
+    //     {
+    //         menu->event(MenuItem::up);
+    //         //modeEdit->increment();
+    //         printf("sw1\n");
+    //         debounce = 150;
+    //     }
+    //     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+
+    // }
+
+    // void PIN_INT1_IRQHandler(void)
+    // {
+    //     menu->event(MenuItem::ok);
+    //     printf("sw2\n");
+    //     if (debounce <= 0)
+    //     {
+    //         menu->event(MenuItem::ok);
+    //         //modeEdit->increment();
+    //         printf("sw2\n");
+    //         debounce = 150;
+    //     }
+    //     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
+
+    // }
+
+    // void PIN_INT2_IRQHandler(void)
+    // {
+    //     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
+    //     printf("sw3\n");
+    //     menu->event(MenuItem::down);
+    //     //modeEdit->decrement();
+    //     if (debounce <= 0)
+    //     {
+    //         menu->event(MenuItem::down);
+    //         //modeEdit->increment();
+    //         printf("sw3\n");
+    //         debounce = 150;
+    //     }
+    //     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
+    // }
 }
 /**
  * @brief	Main UART program body
@@ -303,11 +349,10 @@ int main(void)
 
     IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 1);
     IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 1);
-    ModeEdit modeEdit(lcd, "Mode", Mode::automatic);
-
-    controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, &modeEdit);
-
     ModeEdit currentMode(lcd, "Mode", Mode::automatic);
+
+    controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, &currentMode);
+
     MenuItem speedItem(&targetSpeed);
     MenuItem pressureItem(&targetPressure);
     HomeScreen homeScreen(lcd, &targetSpeed, &targetPressure, &currentMode);
@@ -322,10 +367,10 @@ int main(void)
         if (controller->pressureDifference() == 0)
             reachCounter = 0;
 
-        else if (controller->pressureDifference() != 0 && modeEdit.getValue() == Mode::automatic)
+        else if (controller->pressureDifference() != 0 && currentMode.getValue() == Mode::automatic)
             reachCounter++;
 
-        else if (modeEdit.getValue() == Mode::manual)
+        else if (currentMode.getValue() == Mode::manual)
             reachCounter = 0;
 
         if (reachCounter == REACHTIME) {
