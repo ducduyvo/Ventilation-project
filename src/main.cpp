@@ -317,20 +317,7 @@ int main(void)
     while (1) {
         controller->updatePeripherals();
         printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
-        printf("pressure = %d, speed =%u\n", pressure.getPressure(), fan.getSpeed());
-        /* printf("%d\n", reachCounter); */
-
-        /*
-        if (controller->getTargetPressure() - pressure.getPressure() == 0) {
-            reachCounter = 0;
-        }
-        else if (controller->getTargetPressure() - pressure.getPressure() != 0 && modeEdit.getValue() == Mode::automatic) {
-            reachCounter++;
-        }
-        else if (modeEdit.getValue() == Mode::manual) {
-            reachCounter = 0;
-        }
-        */
+        printf("pressure = %d, speed = %u\n", pressure.getPressure(), fan.getSpeed());
 
         if (controller->pressureDifference() == 0)
             reachCounter = 0;
