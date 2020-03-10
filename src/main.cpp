@@ -105,7 +105,6 @@ extern "C"
 */
 void SysTick_Handler(void)
 {
-    /* printf("before: intRepeat = %d, previousIntRepeat  = %d, debounce = %d, %releasedSw0 = %d, releasedSw2 = %d\n", intRepeat,  previousIntRepeat, debounce, releasedSw0, releasedSw2); */
     systicks++;
     backCounter--;
     if (intRepeat > 0) {
@@ -257,7 +256,7 @@ int main(void)
     // { 1, 10 };
     // { 0, 29 };
 
-    // Confiure interrupts
+    /* Confiure interrupts */
     // switch 1
     Chip_INMUX_PinIntSel(0, 1, 3);
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
@@ -285,7 +284,7 @@ int main(void)
     NVIC_ClearPendingIRQ(PIN_INT2_IRQn);
     NVIC_EnableIRQ(PIN_INT2_IRQn);
 
-    // LCD
+     /* LCD */
     DigitalIoPin rs(0, 8, false, true, false);
     DigitalIoPin en(1, 6, false, true, false);
     DigitalIoPin d4(1, 8, false, true, false);
@@ -297,9 +296,9 @@ int main(void)
     lcd->setCursor(0, 0);
     lcd->print("hello");
 
+    /* Variables */
     Fan fan;
     Pressure pressure;
-    int warningTimer = 0;
     int reachCounter = 0;
 
     IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 1);

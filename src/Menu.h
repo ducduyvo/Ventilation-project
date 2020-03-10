@@ -25,13 +25,13 @@ public:
     void event(MenuItem::menuEvent e);
 
 private:
-    MenuItem *items[3];
+    MenuItem *items[3]; // Array holding all menuitems
     HomeScreen *homeScreen;
     MenuItem *targetSpeed;
     MenuItem *targetPressure;
     ModeEdit *currentMode;
     uint8_t position;
-    void switchPosition();
+    void handleUpOrDown(MenuItem::menuEvent e);
 };
 
 #endif /* MENU_H_ */

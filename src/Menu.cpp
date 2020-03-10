@@ -25,28 +25,11 @@ void Menu::event(MenuItem::menuEvent e)
     items[position]->event(MenuItem::show);
     switch (e) {
         case MenuItem::up:
-            if (position == HOMEPOS) {
-                switchPosition();
-                items[position]->event(MenuItem::show);
-            }
-
-            // we werent on the homescreen so just send the up command
-            else {
-                items[position]->event(e);
-            }
+            handleUpOrDown(e);
             break;
 
         case MenuItem::down:
-            // We are on homescreen so switch the position
-            if (position == HOMEPOS) {
-                switchPosition();
-                items[position]->event(MenuItem::show);
-            }
-
-            // we werent on the homescreen so just send the up command
-            else {
-                items[position]->event(e);
-            }
+            handleUpOrDown(e);
             break;
 
         case MenuItem::ok:
@@ -71,12 +54,23 @@ void Menu::event(MenuItem::menuEvent e)
 }
 
 // Switch the position according to the current mode
-void Menu::switchPosition()
+// Then update the screen
+void Menu::handleUpOrDown(MenuItem::menuEvent e)
 {
-    if (currentMode->getValue() == Mode::manual) {
-        position = SPEEDPOS;
+    if (position == HOMEPOS) {
+
+        if (currentMode->getValue() == Mode::manual) {
+            position = SPEEDPOS;
+        }
+        else if (currentMode->getValue() == Mode::automatic) {
+            position = PRESSUREPOS;
+        }
+        items[position]->event(MenuItem::show);
     }
-    else if (currentMode->getValue() == Mode::automatic) {
-        position = PRESSUREPOS;
+
+    // we werent on the homescreen so just send the up/down event
+    // and the menu item can handle it
+    else {
+        items[position]->event(e);
     }
 }

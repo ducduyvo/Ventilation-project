@@ -37,8 +37,8 @@ void HomeScreen::display()
     strcat(pressureString, "pa");
 
     lcd->setCursor(0, 1);
-    // second value has to one greater than in the line above because escaping % with "%%" eats
-    // one character from the padding
+    // second padding value has to one greater here compared to row above
+    // because escaping % with "%%" eats one character from the padding
     snprintf(buffer, OFFSET, "%-6s%-6s%-5s",
              mode->toString(mode->getValue()),
              speedString,
