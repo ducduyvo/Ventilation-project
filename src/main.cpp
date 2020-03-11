@@ -42,7 +42,7 @@
 #define TICKRATE 1000
 #define MAXREPEAT 500
 #define MINREPEAT 10
-#define DEBOUNCE_TIME 50
+#define DEBOUNCE_TIME 150
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -116,11 +116,11 @@ void SysTick_Handler(void)
         counter--;
 
     if (!releasedSw0) {
-        switchEvent(MenuItem::menuEvent::up);
+        switchEvent(MenuItem::menuEvent::down);
     }
 
     if (!releasedSw2) {
-        switchEvent(MenuItem::menuEvent::down);
+        switchEvent(MenuItem::menuEvent::up);
     }
     if (backCounter <= 0) {
         backCounter = 10000;
@@ -151,22 +151,28 @@ extern "C"
     void PIN_INT0_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-        menu->event(MenuItem::down);
+        if (debounce <= 0) menu->event(MenuItem::down);
+        debounce = DEBOUNCE_TIME;
+        backCounter = 10000;
         printf("sw1\n");
     }
 
     void PIN_INT1_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-        menu->event(MenuItem::ok);
+        if (debounce <= 0) menu->event(MenuItem::ok);
+        debounce = DEBOUNCE_TIME;
         printf("sw2\n");
+        backCounter = 10000;
     }
 
     void PIN_INT2_IRQHandler(void)
     {
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-        menu->event(MenuItem::up);
+        if (debounce <= 0) menu->event(MenuItem::up);
+        debounce = DEBOUNCE_TIME;
         printf("sw3\n");
+        backCounter = 10000;
     }
 
     /* void PIN_INT0_IRQHandler(void) */
@@ -228,7 +234,6 @@ extern "C"
     /*     debounce = DEBOUNCE_TIME; */
     /*     backCounter = 10000; */
     /*     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2)); */
-
     /* } */
 }
 /**
@@ -291,7 +296,6 @@ int main(void)
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(1));
     Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(1));
-    Chip_PININT_EnableIntLow(LPC_GPIO_PIN_INT, PININTCH(1));
     NVIC_ClearPendingIRQ(PIN_INT1_IRQn);
     NVIC_EnableIRQ(PIN_INT1_IRQn);
 
@@ -334,12 +338,13 @@ int main(void)
     menu = new Menu(&homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
     menu->event(MenuItem::show);
 
-    fan.setSpeed(50);
     /* printf("fan.getSpeed() = %u\n", fan.getSpeed()); */
     while (1) {
-        /* controller->updatePeripherals(); */
-        /* printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed()); */
-        /* printf("pressure = %d, speed = %u\n", pressure.getPressure(), fan.getSpeed()); */
+        if (controller->updatePeripherals()) {
+            menu->event(MenuItem::show);
+        }
+        printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
+        printf("pressure = %d, speed = %u\n", pressure.getPressure(), fan.getSpeed());
 
         /* if (controller->pressureDifference() == 0) */
         /*     reachCounter = 0; */
@@ -360,6 +365,7 @@ int main(void)
         /*     Sleep(3000); */
         /*     reachCounter = 0; */
         /* } */
+        Sleep(1000);
     }
 
     return 1;

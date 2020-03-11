@@ -15,7 +15,7 @@ class Controller {
 public:
     Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_, IntegerEdit *targetPressure_, ModeEdit *state_);
     virtual ~Controller() {};
-    void updatePeripherals();
+    bool updatePeripherals();
     int16_t pressureDifference();
     bool isInRange(int offset);
     void setTargetSpeed(uint8_t targetSpeed_)       { targetSpeed->setValue(targetSpeed_); }
@@ -35,6 +35,7 @@ private:
     IntegerEdit *targetSpeed;      // in percent
     IntegerEdit *targetPressure; // in pascal
     ModeEdit *currentMode;
+    Mode previousMode;
 };
 
 #endif /* CONTROLLER_H_ */
