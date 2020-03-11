@@ -60,7 +60,6 @@
  * Public functions
  ****************************************************************************/
 
-bool loaded = false;
 static volatile int counter;
 static volatile int debounce = 0;
 static volatile uint32_t systicks = 0;
@@ -129,17 +128,6 @@ void SysTick_Handler(void)
         menu->event(MenuItem::menuEvent::back);
     }
 
-    if (controller != nullptr && loaded) {
-        if (controller->hasPressureChanged()) {
-            homeScreen->displayPressure();
-        }
-        if (controller->hasModeChanged()) {
-            homeScreen->displayMode();
-        }
-        if (controller->hasSpeedChanged()) {
-            homeScreen->displayFan();
-        }
-    }
 }
 #ifdef __cplusplus
 }
@@ -351,11 +339,25 @@ int main(void)
     menu = new Menu(homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
     menu->event(MenuItem::show);
 
-    loaded = true;
     while (1) {
         controller->updatePeripherals();
         printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
         printf("pressure = %d, speed = %u\n", pressure.getPressure(), fan.getSpeed());
+
+        if (controller != nullptr && menu->getPosition() == HOMEPOS) {
+            if (controller->hasPressureChanged()) {
+                homeScreen->displayPressure();
+            }
+            if (controller->hasModeChanged()) {
+                homeScreen->displayMode();
+            }
+            if (controller->hasSpeedChanged()) {
+                homeScreen->displayFan();
+            }
+            if (menu->hasPositionChanged()) {
+                menu->event(MenuItem::show);
+            }
+        }
 
         /* if (controller->pressureDifference() == 0) */
         /*     reachCounter = 0; */
@@ -376,7 +378,7 @@ int main(void)
         /*     Sleep(3000); */
         /*     reachCounter = 0; */
         /* } */
-        Sleep(100);
+        /* Sleep(100); */
     }
 
     return 1;

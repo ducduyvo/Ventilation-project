@@ -23,6 +23,8 @@ public:
     Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_);
     virtual ~Menu();
     void event(MenuItem::menuEvent e);
+    bool hasPositionChanged();
+    int getPosition() { return position; };
 
 private:
     MenuItem *items[MAX_ITEMS]; // Array holding all menuitems
@@ -30,6 +32,7 @@ private:
     MenuItem *targetSpeed;
     MenuItem *targetPressure;
     ModeEdit *currentMode;
+    uint8_t previousPosition;
     uint8_t position; // position in the items array, defines for unique positions above the class
     void handleUpOrDown(MenuItem::menuEvent e);
 };

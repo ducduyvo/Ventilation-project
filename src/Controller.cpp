@@ -29,7 +29,7 @@ bool Controller::updatePeripherals()
             else
                 difference = sqrt(abs(difference));
 
-            /* fan->setSpeed(fan->getSpeed() + difference); */
+            fan->setSpeed(fan->getSpeed() + difference);
 
             // Calculate difference
             //int16_t difference = pressureDifference();

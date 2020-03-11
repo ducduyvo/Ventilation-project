@@ -17,6 +17,7 @@ Menu::Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPres
     items[SPEEDPOS] = targetSpeed;
     items[PRESSUREPOS] = targetPressure;
     position = HOMEPOS;
+    previousPosition = position;
 }
 
 Menu::~Menu() { }
@@ -79,4 +80,10 @@ void Menu::handleUpOrDown(MenuItem::menuEvent e)
     else {
         items[position]->event(e);
     }
+}
+
+bool Menu::hasPositionChanged() {
+    bool changed = position != previousPosition;
+    previousPosition = position;
+    return changed;
 }
