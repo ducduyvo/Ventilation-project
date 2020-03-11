@@ -47,6 +47,7 @@
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
+static bool loaded = false;
 static volatile int counter;
 static volatile int buttonCounter;
 static volatile int debounce = 0;
@@ -78,6 +79,7 @@ static bool releasedSw2 = true;
  ****************************************************************************/
 void checkButtons();
 void switchEvent(MenuItem::menuEvent event);
+void updateScreen();
 
 #ifdef __cplusplus
 extern "C"
@@ -90,29 +92,28 @@ extern "C"
 void SysTick_Handler(void)
 {
     systicks++;
-    if (backCounter > 0) {
+    if (backCounter > 0)
         backCounter--;
-    }
-    if (intRepeat > 0) {
+    if (intRepeat > 0)
         intRepeat--;
-    }
     if (debounce > 0)
         debounce--;
     if (counter > 0)
         counter--;
-
-
+    if (buttonCounter >0)
+        buttonCounter--;
+    if (loaded)
+        updateScreen();
 }
 #ifdef __cplusplus
 }
 #endif
 
-void ButtonSleep(int ms)
+void updateScreen()
 {
-    buttonCounter = ms;
-    while (buttonCounter > 0) {
-        __WFI();
-        checkButtons();
+    {
+        /* printf("%d,%d,%d\n", releasedSw0, releasedSw1, releasedSw2); */
+        /* checkButtons(); */
         if (menu->getPosition() == HOMEPOS) {
             if (controller->hasModeChanged()) {
                 homeScreen->displayMode();
@@ -152,15 +153,15 @@ extern "C"
         }
 
         else {
+            menu->event(MenuItem::menuEvent::down);
             printf("sw0 High\n");
             releasedSw0 = false;
-            intRepeat = 0;
+            intRepeat = MAXREPEAT;
             previousIntRepeat = MAXREPEAT;
             Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(0));
         }
 
         backCounter = 10000;
-        buttonCounter = 0;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     }
 
@@ -168,12 +169,12 @@ extern "C"
     {
         if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
             printf("sw1\n");
-            intRepeat = 0;
-            previousIntRepeat = MAXREPEAT;
-            releasedSw1 = false;
+            if (debounce <= 0) {
+                switchEvent(MenuItem::menuEvent::ok);
+            }
         }
         backCounter = 10000;
-        buttonCounter = 0;
+        debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
     }
 
@@ -186,15 +187,15 @@ extern "C"
         }
 
         else {
+            menu->event(MenuItem::menuEvent::up);
             printf("sw2 High\n");
             releasedSw2 = false;
             Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2));
-            intRepeat = 0;
+            intRepeat = MAXREPEAT;
             previousIntRepeat = MAXREPEAT;
         }
 
         backCounter = 10000;
-        buttonCounter = 0;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
     }
 }
@@ -300,25 +301,26 @@ int main(void)
     menu = new Menu(homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
     menu->event(MenuItem::show);
 
+    loaded = true;
     while (1) {
-        checkButtons();
-        if (menu->getPosition() == HOMEPOS) {
-            if (controller->hasModeChanged()) {
-                homeScreen->displayMode();
-            }
-            if (controller->hasPressureChanged()) {
-                homeScreen->displayPressure();
-            }
-            if (controller->hasSpeedChanged()) {
-                homeScreen->displayFan();
-            }
-        }
+        /* checkButtons(); */
+        /* if (menu->getPosition() == HOMEPOS) { */
+        /*     if (controller->hasModeChanged()) { */
+        /*         homeScreen->displayMode(); */
+        /*     } */
+        /*     if (controller->hasPressureChanged()) { */
+        /*         homeScreen->displayPressure(); */
+        /*     } */
+        /*     if (controller->hasSpeedChanged()) { */
+        /*         homeScreen->displayFan(); */
+        /*     } */
+        /* } */
 
-        ButtonSleep(1000);
-        printf("P/tP, S/tS\n");
         printf("%d/%d, %u/%u\n", pressure.getPressure(), controller->getTargetPressure(), fan.getSpeed(), controller->getTargetSpeed());
         controller->updatePeripherals();
+        Sleep(10);
         /* printf("%d,%d,%d          ", releasedSw0, releasedSw1, releasedSw2); */
+        /* printf("P/tP, S/tS\n"); */
         /* printf("debounce = %d\n", debounce); */
 
         /* if (controller->pressureDifference() == 0) */
@@ -349,14 +351,6 @@ void checkButtons()
 {
     if (!releasedSw0) {
         switchEvent(MenuItem::menuEvent::down);
-    }
-
-    if (!releasedSw1) {
-        if (debounce <= 0) {
-            menu->event(MenuItem::menuEvent::ok);
-        }
-        releasedSw1 = true;
-        debounce = DEBOUNCE_TIME;
     }
 
     if (!releasedSw2) {

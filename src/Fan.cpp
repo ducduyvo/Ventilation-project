@@ -1,7 +1,8 @@
 #include "Fan.h"
+#include <mutex>
 
 Fan::Fan() :
-    node(2), speed(&node, 1), controlWord(&node, 0), statusWord(&node, 3)
+    node(2), frequency(&node, 1), controlWord(&node, 0), statusWord(&node, 3)
 {
     node.begin(9600); // set transmission rate - other parameters are set inside the object and can't be changed here
 
@@ -33,14 +34,26 @@ Fan::Fan() :
 
 }
 
-void Fan::setSpeed(uint8_t percent)
+void Fan::setSpeed(int8_t percent)
 {
-    if (percent > 100)     speed = MAX_SPEED;
-    else if (percent < 0)  speed = MIN_SPEED;
-    else                   speed = percent * 200;
+    if (percent > 100)     frequency = MAX_SPEED;
+    else if (percent < 0)  frequency = MIN_SPEED;
+    else                   frequency = percent * 200;
+    updateSpeed();
+}
+
+void Fan::updateSpeed()
+{
+    speed = frequency / 200;
 }
 
 bool Fan::getStatusBit(uint8_t bit)
 {
     return (statusWord & (1 << bit));
+}
+
+uint8_t Fan::getSpeed()
+{
+    std::lock_guard<Imutex> lock(guard);
+    return speed;
 }

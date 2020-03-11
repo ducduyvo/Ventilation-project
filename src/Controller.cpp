@@ -12,6 +12,8 @@ Controller::Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_
 
 bool Controller::updatePeripherals()
 {
+    pressure->updatePressure();
+    fan->updateSpeed();
     switch (currentMode->getValue()) {
 
         // TODO everytime this is called if we are in homescreen we should update the
@@ -23,15 +25,15 @@ bool Controller::updatePeripherals()
             break;
 
         case Mode::automatic:
-            if (!isInRange(2)) {
             printf("difference = %d\n", pressureDifference());
+            if (!isInRange(2)) {
                 int16_t difference = pressureDifference();
                 if (difference < 0)
                     difference = -sqrt(abs(difference));
                 else
                     difference = sqrt(abs(difference));
 
-                fan->setSpeed(fan->getSpeed() + difference);
+                fan->setSpeed((int)fan->getSpeed() + difference);
             }
 
             // Calculate difference

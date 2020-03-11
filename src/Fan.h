@@ -3,6 +3,7 @@
 
 #include "ModbusMaster.h"
 #include "ModbusRegister.h"
+#include "Imutex.h"
 
 #if defined (__USE_LPCOPEN)
     #if defined(NO_BOARD_LIB)
@@ -27,17 +28,20 @@ public:
     Fan();
     virtual ~Fan() { };
 
-    void setSpeed(uint8_t percent);            // set the fan speed in percent (0-100)
-    uint8_t getSpeed() { return speed / 200; } // get the fan speed in percent (0-100)
+    void setSpeed(int8_t percent);            // set the fan speed in percent (0-100)
+    uint8_t getSpeed(); // get the fan speed in percent (0-100)
+    void updateSpeed();
 
     uint16_t getStatusWord() { return statusWord; }
     bool getStatusBit(uint8_t bit);
 
 private:
+    Imutex guard;
     ModbusMaster node;
-    ModbusRegister speed;              // Used to control the motor speed (Reference 1)
+    ModbusRegister frequency;              // Used to control the motor speed (Reference 1)
     ModbusRegister controlWord;        // Control register
     ModbusRegister statusWord;         // Status word register
+    uint8_t speed = 0;
 };
 
 #endif /* FAN_H_ */
