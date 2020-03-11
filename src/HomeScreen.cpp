@@ -11,12 +11,13 @@
 #include <stdio.h>
 #include <string.h>
 
-HomeScreen::HomeScreen(LiquidCrystal *lcd_, IntegerEdit *Speed_, IntegerEdit *Pressure_, ModeEdit *mode_) :
-      lcd(lcd_),
-      speed(Speed_),
-      pressure(Pressure_),
-      mode(mode_)
-{ }
+HomeScreen::HomeScreen(LiquidCrystal *lcd_, Fan *speed_, Pressure *pressure_, ModeEdit *mode_) :
+    lcd(lcd_),
+    speed(speed_),
+    pressure(pressure_),
+    mode(mode_)
+{
+}
 
 void HomeScreen::display()
 {
@@ -30,8 +31,10 @@ void HomeScreen::display()
     // Second row
     char speedString[BUF_SIZE] = "";
     char pressureString[BUF_SIZE] = "";
-    sprintf(speedString, "%u", speed->getValue());
-    sprintf(pressureString, "%d", pressure->getValue());
+    printf("test1\n");
+    sprintf(speedString, "%u", speed->getSpeed());
+    printf("test2\n");
+    sprintf(pressureString, "%d", pressure->getPressure());
     strcat(speedString, "%%");
     strcat(pressureString, "pa");
 

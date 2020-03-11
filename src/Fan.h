@@ -28,7 +28,8 @@ public:
     virtual ~Fan() { };
 
     void setSpeed(uint8_t percent);            // set the fan speed in percent (0-100)
-    uint8_t getSpeed() { return speed / 200; } // get the fan speed in percent (0-100)
+    uint8_t getSpeed() { return 100; } // get the fan speed in percent (0-100)
+    /* uint8_t getSpeed() { return speed / 200; } // get the fan speed in percent (0-100) */
 
     uint16_t getStatusWord() { return statusWord; }
     bool getStatusBit(uint8_t bit);

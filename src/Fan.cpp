@@ -51,6 +51,3 @@ bool Fan::getStatusBit(uint8_t bit)
 {
     return (statusWord & (1 << bit));
 }
-
-
-

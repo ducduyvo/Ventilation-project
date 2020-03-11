@@ -150,112 +150,86 @@ extern "C"
 {
     void PIN_INT0_IRQHandler(void)
     {
-        // check whether the interrupt was low or high
-        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0)) {
-            printf("sw0 Low\n");
-            releasedSw0 = true;
-        }
-
-        else {
-            if (debounce <= 0) {
-                menu->event(MenuItem::menuEvent::up);
-            }
-            printf("sw0 High\n");
-            releasedSw0 = false;
-            intRepeat = MAXREPEAT;
-            previousIntRepeat = intRepeat;
-            Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(0));
-        }
-
-        debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-        backCounter = 10000;
+        menu->event(MenuItem::down);
+        printf("sw1\n");
     }
 
     void PIN_INT1_IRQHandler(void)
     {
-        if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
-            printf("sw1\n");
-            if (debounce <= 0) {
-                menu->event(MenuItem::ok);
-            }
-        }
-        debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-        backCounter = 10000;
-
+        menu->event(MenuItem::ok);
+        printf("sw2\n");
     }
 
     void PIN_INT2_IRQHandler(void)
     {
-        // check whether the interrupt was low or high
-        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2)) {
-            printf("sw2 Low\n");
-            releasedSw2 = true;
-        }
-
-        else {
-            if (debounce <= 0) {
-                menu->event(MenuItem::menuEvent::down);
-            }
-            printf("sw2 High\n");
-            releasedSw2 = false;
-            intRepeat = MAXREPEAT;
-            previousIntRepeat = intRepeat;
-            Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2));
-        }
-
-        debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-        backCounter = 10000;
-
+        menu->event(MenuItem::up);
+        printf("sw3\n");
     }
-    //     void PIN_INT0_IRQHandler(void)
-    // {
-    //     menu->event(MenuItem::up);
-    //     //modeEdit->increment();
-    //     printf("sw1\n");
-    //     if (debounce <= 0)
-    //     {
-    //         menu->event(MenuItem::up);
-    //         //modeEdit->increment();
-    //         printf("sw1\n");
-    //         debounce = 150;
-    //     }
-    //     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
 
-    // }
+    /* void PIN_INT0_IRQHandler(void) */
+    /* { */
+    /*     // check whether the interrupt was low or high */
+    /*     if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0)) { */
+    /*         printf("sw0 Low\n"); */
+    /*         releasedSw0 = true; */
+    /*     } */
 
-    // void PIN_INT1_IRQHandler(void)
-    // {
-    //     menu->event(MenuItem::ok);
-    //     printf("sw2\n");
-    //     if (debounce <= 0)
-    //     {
-    //         menu->event(MenuItem::ok);
-    //         //modeEdit->increment();
-    //         printf("sw2\n");
-    //         debounce = 150;
-    //     }
-    //     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
+    /*     else { */
+    /*         if (debounce <= 0) { */
+    /*             menu->event(MenuItem::menuEvent::down); */
+    /*         } */
+    /*         printf("sw0 High\n"); */
+    /*         releasedSw0 = false; */
+    /*         intRepeat = MAXREPEAT; */
+    /*         previousIntRepeat = intRepeat; */
+    /*         Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(0)); */
+    /*     } */
 
-    // }
+    /*     debounce = DEBOUNCE_TIME; */
+    /*     backCounter = 10000; */
+    /*     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0)); */
+    /* } */
 
-    // void PIN_INT2_IRQHandler(void)
-    // {
-    //     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-    //     printf("sw3\n");
-    //     menu->event(MenuItem::down);
-    //     //modeEdit->decrement();
-    //     if (debounce <= 0)
-    //     {
-    //         menu->event(MenuItem::down);
-    //         //modeEdit->increment();
-    //         printf("sw3\n");
-    //         debounce = 150;
-    //     }
-    //     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-    // }
+    /* void PIN_INT1_IRQHandler(void) */
+    /* { */
+    /*     if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) { */
+    /*         printf("sw1\n"); */
+    /*         if (debounce <= 0) { */
+    /*             menu->event(MenuItem::ok); */
+    /*         } */
+    /*     } */
+    /*     debounce = DEBOUNCE_TIME; */
+    /*     backCounter = 10000; */
+    /*     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1)); */
+    /* } */
+
+    /* void PIN_INT2_IRQHandler(void) */
+    /* { */
+    /*     // check whether the interrupt was low or high */
+    /*     if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2)) { */
+    /*         printf("sw2 Low\n"); */
+    /*         releasedSw2 = true; */
+    /*     } */
+
+    /*     else { */
+    /*         if (debounce <= 0) { */
+    /*             menu->event(MenuItem::menuEvent::up); */
+    /*         } */
+    /*         printf("sw2 High\n"); */
+    /*         releasedSw2 = false; */
+    /*         intRepeat = MAXREPEAT; */
+    /*         previousIntRepeat = intRepeat; */
+    /*         Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2)); */
+    /*     } */
+
+    /*     debounce = DEBOUNCE_TIME; */
+    /*     backCounter = 10000; */
+    /*     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2)); */
+
+    /* } */
 }
 /**
  * @brief	Main UART program body
@@ -330,7 +304,7 @@ int main(void)
     NVIC_ClearPendingIRQ(PIN_INT2_IRQn);
     NVIC_EnableIRQ(PIN_INT2_IRQn);
 
-     /* LCD */
+    /* LCD */
     DigitalIoPin rs(0, 8, false, true, false);
     DigitalIoPin en(1, 6, false, true, false);
     DigitalIoPin d4(1, 8, false, true, false);
@@ -355,34 +329,37 @@ int main(void)
 
     MenuItem speedItem(&targetSpeed);
     MenuItem pressureItem(&targetPressure);
-    HomeScreen homeScreen(lcd, &targetSpeed, &targetPressure, &currentMode);
+    HomeScreen homeScreen(lcd, &fan, &pressure, &currentMode);
 
     menu = new Menu(&homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
+    menu->event(MenuItem::show);
 
+    fan.setSpeed(50);
+    /* printf("fan.getSpeed() = %u\n", fan.getSpeed()); */
     while (1) {
-        controller->updatePeripherals();
-        printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
-        printf("pressure = %d, speed = %u\n", pressure.getPressure(), fan.getSpeed());
+        /* controller->updatePeripherals(); */
+        /* printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed()); */
+        /* printf("pressure = %d, speed = %u\n", pressure.getPressure(), fan.getSpeed()); */
 
-        if (controller->pressureDifference() == 0)
-            reachCounter = 0;
+        /* if (controller->pressureDifference() == 0) */
+        /*     reachCounter = 0; */
 
-        else if (controller->pressureDifference() != 0 && currentMode.getValue() == Mode::automatic)
-            reachCounter++;
+        /* else if (controller->pressureDifference() != 0 && currentMode.getValue() == Mode::automatic) */
+        /*     reachCounter++; */
 
-        else if (currentMode.getValue() == Mode::manual)
-            reachCounter = 0;
+        /* else if (currentMode.getValue() == Mode::manual) */
+        /*     reachCounter = 0; */
 
-        if (reachCounter == REACHTIME) {
-            printf("Unreachable\n");
-            lcd->clear();
-            lcd->setCursor(0, 0);
-            lcd->print("Can't reach");
-            lcd->setCursor(0, 1);
-            lcd->print("target pressure");
-            Sleep(3000);
-            reachCounter = 0;
-        }
+        /* if (reachCounter == REACHTIME) { */
+        /*     printf("Unreachable\n"); */
+        /*     lcd->clear(); */
+        /*     lcd->setCursor(0, 0); */
+        /*     lcd->print("Can't reach"); */
+        /*     lcd->setCursor(0, 1); */
+        /*     lcd->print("target pressure"); */
+        /*     Sleep(3000); */
+        /*     reachCounter = 0; */
+        /* } */
     }
 
     return 1;

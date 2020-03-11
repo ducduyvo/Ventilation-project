@@ -13,13 +13,15 @@
 #include "ModeEdit.h"
 #include "LiquidCrystal.h"
 #include "MenuItem.h"
+#include "Pressure.h"
+#include "Fan.h"
 #include <string>
 
 #define BUF_SIZE 17
 
 class HomeScreen : public MenuItem {
 public:
-    HomeScreen(LiquidCrystal *lcd_, IntegerEdit *Speed_, IntegerEdit *Pressure_, ModeEdit *mode_);
+    HomeScreen(LiquidCrystal *lcd_, Fan *speed_, Pressure *pressure_, ModeEdit *mode_);
     ~HomeScreen() { };
     void setModeTitle(const char *title)     { modeTitle = title;     }
     void setSpeedTitle(const char *title)    { speedTitle = title;    }
@@ -33,8 +35,8 @@ public:
 
 private:
     LiquidCrystal *lcd;
-    IntegerEdit *speed;    // in percent
-    IntegerEdit *pressure; // in pascal
+    Fan *speed;    // in percent
+    Pressure *pressure; // in pascal
     ModeEdit *mode;
 
     // Titles hold what we print in the top row
