@@ -60,7 +60,7 @@
  * Public functions
  ****************************************************************************/
 
-bool loaded = true;
+bool loaded = false;
 static volatile int counter;
 static volatile int debounce = 0;
 static volatile uint32_t systicks = 0;
@@ -350,9 +350,8 @@ int main(void)
 
     menu = new Menu(homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
     menu->event(MenuItem::show);
-    loaded = true;
 
-    /* printf("fan.getSpeed() = %u\n", fan.getSpeed()); */
+    loaded = true;
     while (1) {
         controller->updatePeripherals();
         printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
