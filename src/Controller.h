@@ -6,6 +6,11 @@
 #include "IntegerEdit.h"
 #include "ModeEdit.h"
 
+
+#define P 0.1
+#define I 0.5
+#define D 0.01
+
 class Controller {
 public:
     Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_, IntegerEdit *targetPressure_, ModeEdit *state_);
