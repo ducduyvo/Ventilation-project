@@ -6,6 +6,8 @@ Controller::Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_
     : fan(fan_), pressure(pressure_), targetSpeed(targetSpeed_), targetPressure(targetPressure_), currentMode(state_)
 {
     previousMode = currentMode->getValue();
+    previousSpeed = 0;
+    previousPressure = 0;
 }
 
 bool Controller::updatePeripherals()
@@ -57,4 +59,22 @@ bool Controller::updatePeripherals()
 int16_t Controller::pressureDifference()
 {
     return targetPressure->getValue() - pressure->getPressure();
+}
+
+bool Controller::hasSpeedChanged() {
+    bool changed = fan->getSpeed() != previousSpeed;
+    previousSpeed = fan->getSpeed();
+    return changed;
+}
+
+bool Controller::hasPressureChanged() {
+    bool changed = pressure->getPressure() != previousPressure;
+    previousPressure = pressure->getPressure();
+    return changed;
+}
+
+bool Controller::hasModeChanged() {
+    bool changed = currentMode->getValue() != previousMode;
+    previousMode = currentMode->getValue();
+    return changed;
 }

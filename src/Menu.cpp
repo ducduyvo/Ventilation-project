@@ -70,7 +70,7 @@ void Menu::handleUpOrDown(MenuItem::menuEvent e)
             position = PRESSUREPOS;
         }
         // call the correct show event
-        /* items[position]->event(MenuItem::show); */
+        items[position]->event(MenuItem::show);
     }
 
     // we were on either pressure or speed menuitem

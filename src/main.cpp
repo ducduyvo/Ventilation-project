@@ -60,6 +60,7 @@
  * Public functions
  ****************************************************************************/
 
+bool loaded = true;
 static volatile int counter;
 static volatile int debounce = 0;
 static volatile uint32_t systicks = 0;
@@ -69,6 +70,7 @@ static LiquidCrystal *lcd;
 static Controller *controller;
 static Printer printer;
 static Menu *menu;
+static HomeScreen *homeScreen;
 
 // No switch 2 since it's for the ok button and we dont need to repeat ok
 static volatile int intRepeat = 0;
@@ -127,6 +129,17 @@ void SysTick_Handler(void)
         menu->event(MenuItem::menuEvent::back);
     }
 
+    if (controller != nullptr && loaded) {
+        if (controller->hasPressureChanged()) {
+            homeScreen->displayPressure();
+        }
+        if (controller->hasModeChanged()) {
+            homeScreen->displayMode();
+        }
+        if (controller->hasSpeedChanged()) {
+            homeScreen->displayFan();
+        }
+    }
 }
 #ifdef __cplusplus
 }
@@ -329,20 +342,19 @@ int main(void)
     IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 1);
     ModeEdit currentMode(lcd, "Mode", Mode::automatic);
 
-    controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, &currentMode);
 
     MenuItem speedItem(&targetSpeed);
     MenuItem pressureItem(&targetPressure);
-    HomeScreen homeScreen(lcd, &fan, &pressure, &currentMode);
+    homeScreen = new HomeScreen(lcd, &fan, &pressure, &currentMode);
+    controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, &currentMode);
 
-    menu = new Menu(&homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
+    menu = new Menu(homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
     menu->event(MenuItem::show);
+    loaded = true;
 
     /* printf("fan.getSpeed() = %u\n", fan.getSpeed()); */
     while (1) {
-        if (controller->updatePeripherals()) {
-            menu->event(MenuItem::show);
-        }
+        controller->updatePeripherals();
         printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
         printf("pressure = %d, speed = %u\n", pressure.getPressure(), fan.getSpeed());
 
@@ -365,7 +377,7 @@ int main(void)
         /*     Sleep(3000); */
         /*     reachCounter = 0; */
         /* } */
-        Sleep(1000);
+        Sleep(100);
     }
 
     return 1;

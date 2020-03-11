@@ -22,10 +22,9 @@ public:
     void setTargetPressure(uint8_t targetPressure_) { targetPressure->setValue(targetPressure_); }
     uint8_t getTargetSpeed()    { return targetSpeed->getValue(); }
     uint8_t getTargetPressure() { return targetPressure->getValue(); }
-    int16_t getDifference()     { return pressureDifference(); }
-
-
-
+    bool hasSpeedChanged();
+    bool hasPressureChanged();
+    bool hasModeChanged();
 private:
     // Since c11 it is allowed to initialize data members in header file
     int16_t preDifference = 0;
@@ -35,6 +34,8 @@ private:
     IntegerEdit *targetSpeed;      // in percent
     IntegerEdit *targetPressure; // in pascal
     ModeEdit *currentMode;
+    uint8_t previousSpeed = 0;
+    int16_t previousPressure = 0;
     Mode previousMode;
 };
 

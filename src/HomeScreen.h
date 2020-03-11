@@ -31,6 +31,7 @@ public:
     const char *getFanTitle()    { return fanTitle.c_str();    }
     const char *getPressureTitle() { return pressureTitle.c_str(); }
     void display();
+    void displayTitles();
     void displayMode();
     void displayFan();
     void displayPressure();
