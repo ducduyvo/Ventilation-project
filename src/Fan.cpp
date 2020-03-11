@@ -29,14 +29,8 @@ Fan::Fan() :
     //       but we take the easy way out and just wait a while and hope that everything goes well
 
     printf("Status=%04X\n", (int)statusWord); // for debugging
+    setSpeed(0);
 
-    setFanSpeed(fanSpeed);
-}
-
-void Fan::setFanSpeed(uint16_t speed_)
-{
-    fanSpeed = speed_;
-    /* printf("Set freq = %d\n", fanSpeed); // for debugging */
 }
 
 void Fan::setSpeed(uint8_t percent)
@@ -44,7 +38,6 @@ void Fan::setSpeed(uint8_t percent)
     if (percent > 100)     speed = MAX_SPEED;
     else if (percent < 0)  speed = MIN_SPEED;
     else                   speed = percent * 200;
-    setFanSpeed(speed);
 }
 
 bool Fan::getStatusBit(uint8_t bit)

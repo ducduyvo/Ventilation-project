@@ -23,13 +23,16 @@ bool Controller::updatePeripherals()
             break;
 
         case Mode::automatic:
-            int16_t difference = pressureDifference();
-            if (difference < 0)
-                difference = -sqrt(abs(difference));
-            else
-                difference = sqrt(abs(difference));
+            if (!isInRange(2)) {
+            printf("difference = %d\n", pressureDifference());
+                int16_t difference = pressureDifference();
+                if (difference < 0)
+                    difference = -sqrt(abs(difference));
+                else
+                    difference = sqrt(abs(difference));
 
-            fan->setSpeed(fan->getSpeed() + difference);
+                fan->setSpeed(fan->getSpeed() + difference);
+            }
 
             // Calculate difference
             //int16_t difference = pressureDifference();
@@ -61,20 +64,28 @@ int16_t Controller::pressureDifference()
     return targetPressure->getValue() - pressure->getPressure();
 }
 
-bool Controller::hasSpeedChanged() {
+bool Controller::hasSpeedChanged()
+{
     bool changed = fan->getSpeed() != previousSpeed;
     previousSpeed = fan->getSpeed();
     return changed;
 }
 
-bool Controller::hasPressureChanged() {
+bool Controller::hasPressureChanged()
+{
     bool changed = pressure->getPressure() != previousPressure;
     previousPressure = pressure->getPressure();
     return changed;
 }
 
-bool Controller::hasModeChanged() {
+bool Controller::hasModeChanged()
+{
     bool changed = currentMode->getValue() != previousMode;
     previousMode = currentMode->getValue();
     return changed;
+}
+
+bool Controller::isInRange(int range)
+{
+    return (abs(pressureDifference()) < range);
 }

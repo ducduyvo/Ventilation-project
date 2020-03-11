@@ -33,14 +33,11 @@ public:
     uint16_t getStatusWord() { return statusWord; }
     bool getStatusBit(uint8_t bit);
 
-
 private:
     ModbusMaster node;
     ModbusRegister speed;              // Used to control the motor speed (Reference 1)
     ModbusRegister controlWord;        // Control register
     ModbusRegister statusWord;         // Status word register
-    uint16_t fanSpeed = 0;             // motor speed
-    void setFanSpeed(uint16_t speed_); // set the motor speed according to speed variable
 };
 
 #endif /* FAN_H_ */

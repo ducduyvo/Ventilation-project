@@ -7,15 +7,9 @@
 
 #include "MenuItem.h"
 
-MenuItem::MenuItem(PropertyEdit *property): pe(property)
-{
+MenuItem::MenuItem(PropertyEdit *property): pe(property) { }
 
-}
-
-MenuItem::~MenuItem()
-{
-
-}
+MenuItem::~MenuItem() { }
 
 void MenuItem::event(menuEvent e)
 {
@@ -29,6 +23,7 @@ void MenuItem::event(menuEvent e)
             changed = true;
             break;
         case show:
+            changed = true;
             break;
         case up:
             changed = pe->increment();

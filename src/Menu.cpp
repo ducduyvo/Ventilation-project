@@ -38,7 +38,7 @@ void Menu::event(MenuItem::menuEvent e)
             // if we are not on home screen we want to go back to it
             if (position != HOMEPOS) {
                 position = HOMEPOS;
-                /* homeScreen->display(); */
+                homeScreen->display();
             }
             break;
 
@@ -48,7 +48,7 @@ void Menu::event(MenuItem::menuEvent e)
             if (position != HOMEPOS) {
                 items[position]->event(e);
                 position = HOMEPOS;
-                /* homeScreen->display(); */
+                homeScreen->display();
             }
             // TODO: Is there anything we want to do if we press back on homescreen
             break;

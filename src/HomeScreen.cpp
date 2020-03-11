@@ -21,15 +21,10 @@ HomeScreen::HomeScreen(LiquidCrystal *lcd_, Fan *fan_, Pressure *pressure_, Mode
 
 void HomeScreen::display()
 {
-    printf("test1\n");
     lcd->clear();
-    printf("test2\n");
     displayTitles();
-    printf("test3\n");
     displayFan();
-    printf("test4\n");
     displayMode();
-    printf("test5\n");
     displayPressure();
 }
 
@@ -73,6 +68,7 @@ void HomeScreen::event(menuEvent e)
     switch (e) {
         case ok:
             mode->changeState();
+            display();
             break;
         case show:
             display();

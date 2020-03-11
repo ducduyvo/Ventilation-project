@@ -47,20 +47,8 @@
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
-
-/*****************************************************************************
- * Public types/enumerations/variables
- ****************************************************************************/
-
-/*****************************************************************************
- * Private functions
- ****************************************************************************/
-
-/*****************************************************************************
- * Public functions
- ****************************************************************************/
-
 static volatile int counter;
+static volatile int buttonCounter;
 static volatile int debounce = 0;
 static volatile uint32_t systicks = 0;
 static volatile int backCounter = 10000;
@@ -75,26 +63,21 @@ static HomeScreen *homeScreen;
 static volatile int intRepeat = 0;
 static volatile int previousIntRepeat = 0;
 static bool releasedSw0 = true;
+static bool releasedSw1 = true;
 static bool releasedSw2 = true;
+/*****************************************************************************
+ * Public types/enumerations/variables
+ ****************************************************************************/
 
-void switchEvent(MenuItem::menuEvent event)
-{
-    if (intRepeat <= 0) {
-        menu->event(event);
+/*****************************************************************************
+ * Private functions
+ ****************************************************************************/
 
-        intRepeat = previousIntRepeat / 1.5;
-
-        if (intRepeat < MINREPEAT) {
-            intRepeat = MINREPEAT;
-        }
-
-        else if (intRepeat > MAXREPEAT) {
-            intRepeat = MAXREPEAT;
-        }
-
-        previousIntRepeat = intRepeat;
-    }
-}
+/*****************************************************************************
+ * Public functions
+ ****************************************************************************/
+void checkButtons();
+void switchEvent(MenuItem::menuEvent event);
 
 #ifdef __cplusplus
 extern "C"
@@ -107,7 +90,9 @@ extern "C"
 void SysTick_Handler(void)
 {
     systicks++;
-    backCounter--;
+    if (backCounter > 0) {
+        backCounter--;
+    }
     if (intRepeat > 0) {
         intRepeat--;
     }
@@ -116,22 +101,31 @@ void SysTick_Handler(void)
     if (counter > 0)
         counter--;
 
-    if (!releasedSw0) {
-        switchEvent(MenuItem::menuEvent::down);
-    }
-
-    if (!releasedSw2) {
-        switchEvent(MenuItem::menuEvent::up);
-    }
-    if (backCounter <= 0) {
-        backCounter = 10000;
-        menu->event(MenuItem::menuEvent::back);
-    }
 
 }
 #ifdef __cplusplus
 }
 #endif
+
+void ButtonSleep(int ms)
+{
+    buttonCounter = ms;
+    while (buttonCounter > 0) {
+        __WFI();
+        checkButtons();
+        if (menu->getPosition() == HOMEPOS) {
+            if (controller->hasModeChanged()) {
+                homeScreen->displayMode();
+            }
+            if (controller->hasPressureChanged()) {
+                homeScreen->displayPressure();
+            }
+            if (controller->hasSpeedChanged()) {
+                homeScreen->displayFan();
+            }
+        }
+    }
+}
 
 void Sleep(int ms)
 {
@@ -151,91 +145,58 @@ extern "C"
 {
     void PIN_INT0_IRQHandler(void)
     {
-        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-        if (debounce <= 0) menu->event(MenuItem::down);
-        debounce = DEBOUNCE_TIME;
+        // check whether the interrupt was low or high
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0)) {
+            printf("sw0 Low\n");
+            releasedSw0 = true;
+        }
+
+        else {
+            printf("sw0 High\n");
+            releasedSw0 = false;
+            intRepeat = 0;
+            previousIntRepeat = MAXREPEAT;
+            Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(0));
+        }
+
         backCounter = 10000;
-        printf("sw1\n");
+        buttonCounter = 0;
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     }
 
     void PIN_INT1_IRQHandler(void)
     {
-        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-        if (debounce <= 0) menu->event(MenuItem::ok);
-        debounce = DEBOUNCE_TIME;
-        printf("sw2\n");
+        if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
+            printf("sw1\n");
+            intRepeat = 0;
+            previousIntRepeat = MAXREPEAT;
+            releasedSw1 = false;
+        }
         backCounter = 10000;
+        buttonCounter = 0;
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
     }
 
     void PIN_INT2_IRQHandler(void)
     {
-        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-        if (debounce <= 0) menu->event(MenuItem::up);
-        debounce = DEBOUNCE_TIME;
-        printf("sw3\n");
+        // check whether the interrupt was low or high
+        if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2)) {
+            printf("sw2 Low\n");
+            releasedSw2 = true;
+        }
+
+        else {
+            printf("sw2 High\n");
+            releasedSw2 = false;
+            Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2));
+            intRepeat = 0;
+            previousIntRepeat = MAXREPEAT;
+        }
+
         backCounter = 10000;
+        buttonCounter = 0;
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
     }
-
-    /* void PIN_INT0_IRQHandler(void) */
-    /* { */
-    /*     // check whether the interrupt was low or high */
-    /*     if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0)) { */
-    /*         printf("sw0 Low\n"); */
-    /*         releasedSw0 = true; */
-    /*     } */
-
-    /*     else { */
-    /*         if (debounce <= 0) { */
-    /*             menu->event(MenuItem::menuEvent::down); */
-    /*         } */
-    /*         printf("sw0 High\n"); */
-    /*         releasedSw0 = false; */
-    /*         intRepeat = MAXREPEAT; */
-    /*         previousIntRepeat = intRepeat; */
-    /*         Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(0)); */
-    /*     } */
-
-    /*     debounce = DEBOUNCE_TIME; */
-    /*     backCounter = 10000; */
-    /*     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0)); */
-    /* } */
-
-    /* void PIN_INT1_IRQHandler(void) */
-    /* { */
-    /*     if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) { */
-    /*         printf("sw1\n"); */
-    /*         if (debounce <= 0) { */
-    /*             menu->event(MenuItem::ok); */
-    /*         } */
-    /*     } */
-    /*     debounce = DEBOUNCE_TIME; */
-    /*     backCounter = 10000; */
-    /*     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1)); */
-    /* } */
-
-    /* void PIN_INT2_IRQHandler(void) */
-    /* { */
-    /*     // check whether the interrupt was low or high */
-    /*     if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2)) { */
-    /*         printf("sw2 Low\n"); */
-    /*         releasedSw2 = true; */
-    /*     } */
-
-    /*     else { */
-    /*         if (debounce <= 0) { */
-    /*             menu->event(MenuItem::menuEvent::up); */
-    /*         } */
-    /*         printf("sw2 High\n"); */
-    /*         releasedSw2 = false; */
-    /*         intRepeat = MAXREPEAT; */
-    /*         previousIntRepeat = intRepeat; */
-    /*         Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2)); */
-    /*     } */
-
-    /*     debounce = DEBOUNCE_TIME; */
-    /*     backCounter = 10000; */
-    /*     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2)); */
-    /* } */
 }
 /**
  * @brief	Main UART program body
@@ -297,6 +258,7 @@ int main(void)
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(1));
     Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(1));
+    Chip_PININT_EnableIntLow(LPC_GPIO_PIN_INT, PININTCH(1));
     NVIC_ClearPendingIRQ(PIN_INT1_IRQn);
     NVIC_EnableIRQ(PIN_INT1_IRQn);
 
@@ -330,7 +292,6 @@ int main(void)
     IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 1);
     ModeEdit currentMode(lcd, "Mode", Mode::automatic);
 
-
     MenuItem speedItem(&targetSpeed);
     MenuItem pressureItem(&targetPressure);
     homeScreen = new HomeScreen(lcd, &fan, &pressure, &currentMode);
@@ -340,24 +301,25 @@ int main(void)
     menu->event(MenuItem::show);
 
     while (1) {
-        controller->updatePeripherals();
-        printf("targetPressure = %d, targetFanSpeed = %u\n", controller->getTargetPressure(), controller->getTargetSpeed());
-        printf("pressure = %d, speed = %u\n", pressure.getPressure(), fan.getSpeed());
-
-        if (controller != nullptr && menu->getPosition() == HOMEPOS) {
-            if (controller->hasPressureChanged()) {
-                homeScreen->displayPressure();
-            }
+        checkButtons();
+        if (menu->getPosition() == HOMEPOS) {
             if (controller->hasModeChanged()) {
                 homeScreen->displayMode();
+            }
+            if (controller->hasPressureChanged()) {
+                homeScreen->displayPressure();
             }
             if (controller->hasSpeedChanged()) {
                 homeScreen->displayFan();
             }
-            if (menu->hasPositionChanged()) {
-                menu->event(MenuItem::show);
-            }
         }
+
+        ButtonSleep(1000);
+        printf("P/tP, S/tS\n");
+        printf("%d/%d, %u/%u\n", pressure.getPressure(), controller->getTargetPressure(), fan.getSpeed(), controller->getTargetSpeed());
+        controller->updatePeripherals();
+        /* printf("%d,%d,%d          ", releasedSw0, releasedSw1, releasedSw2); */
+        /* printf("debounce = %d\n", debounce); */
 
         /* if (controller->pressureDifference() == 0) */
         /*     reachCounter = 0; */
@@ -378,8 +340,50 @@ int main(void)
         /*     Sleep(3000); */
         /*     reachCounter = 0; */
         /* } */
-        /* Sleep(100); */
     }
 
     return 1;
+}
+
+void checkButtons()
+{
+    if (!releasedSw0) {
+        switchEvent(MenuItem::menuEvent::down);
+    }
+
+    if (!releasedSw1) {
+        if (debounce <= 0) {
+            menu->event(MenuItem::menuEvent::ok);
+        }
+        releasedSw1 = true;
+        debounce = DEBOUNCE_TIME;
+    }
+
+    if (!releasedSw2) {
+        switchEvent(MenuItem::menuEvent::up);
+    }
+
+    if (backCounter <= 0) {
+        backCounter = 10000;
+        menu->event(MenuItem::menuEvent::back);
+    }
+}
+
+void switchEvent(MenuItem::menuEvent event)
+{
+    if (intRepeat <= 0) {
+        menu->event(event);
+
+        intRepeat = previousIntRepeat / 1.5;
+
+        if (intRepeat < MINREPEAT) {
+            intRepeat = MINREPEAT;
+        }
+
+        else if (intRepeat > MAXREPEAT) {
+            intRepeat = MAXREPEAT;
+        }
+
+        previousIntRepeat = intRepeat;
+    }
 }
