@@ -23,6 +23,6 @@ int16_t Pressure::convertPressure(int16_t pressure)
 
 
 int16_t Pressure::getPressure() {
-    std::lock_guard<Imutex> lock(guard);
+   // std::lock_guard<Imutex> lock(guard);
     return pressure;
 }

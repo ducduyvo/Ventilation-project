@@ -39,7 +39,17 @@ void Fan::setSpeed(int8_t percent)
     if (percent > 100)     frequency = MAX_SPEED;
     else if (percent < 0)  frequency = MIN_SPEED;
     else                   frequency = percent * 200;
-    updateSpeed();
+	int ctr = 0;
+	bool atSetpoint = false;
+	int result = 0;
+	do {
+		Sleep(50);
+		// read status word
+		result = statusWord;
+		// check if we are at setpoint
+		if (result >= 0 && (result & 0x0100)) atSetpoint = true;
+		ctr++;
+	} while(ctr < 20 && !atSetpoint);
 }
 
 void Fan::updateSpeed()
@@ -54,6 +64,6 @@ bool Fan::getStatusBit(uint8_t bit)
 
 uint8_t Fan::getSpeed()
 {
-    std::lock_guard<Imutex> lock(guard);
+	// std::lock_guard<Imutex> lock(guard);
     return speed;
 }

@@ -331,7 +331,7 @@ int main(void)
             menu->event(MenuItem::back);
             reachCounter = 0;
         }
-        Sleep(500);
+        Sleep(1000);
     }
 
     return 1;

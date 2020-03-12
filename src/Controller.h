@@ -8,9 +8,9 @@
 
 #define USE_PID
 
-#define P 1.6
-#define I 0.3
-#define D 0.05
+#define P 1
+#define I 0
+#define D 0.125
 
 #define PRESSURE_RANGE 2
 

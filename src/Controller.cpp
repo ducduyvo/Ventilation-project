@@ -12,8 +12,9 @@ Controller::Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_
 
 void Controller::updatePeripherals()
 {
-    pressure->updatePressure();
-    fan->updateSpeed();
+					pressure->updatePressure();
+	                fan->updateSpeed();
+
     switch (currentMode->getValue()) {
 
         // TODO everytime this is called if we are in homescreen we should update the
@@ -37,7 +38,7 @@ void Controller::updatePeripherals()
                 double Iout = I * integral;
 
                 // Derivative term
-                double derivative = (difference - preDifference) / 0.2;
+                double derivative = (difference - preDifference);
                 double Dout = D * derivative;
 
                 // Calculate total output
@@ -45,7 +46,7 @@ void Controller::updatePeripherals()
                 printf("Pout = %lf, Iout = %lf, Dout = %lf, output = %lf\n", Pout, Iout, Dout, output);
 
                 preDifference = difference;
-
+                printf("GetSpeed = %u\n",fan->getSpeed());
                 fan->setSpeed(fan->getSpeed() + output);
 #else
                 int16_t difference = pressureDifference();
@@ -57,6 +58,7 @@ void Controller::updatePeripherals()
                 fan->setSpeed((int)fan->getSpeed() + difference);
 #endif
             }
+
             break;
     }
 }
