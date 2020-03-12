@@ -10,7 +10,7 @@ Controller::Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_
     previousPressure = 0;
 }
 
-bool Controller::updatePeripherals()
+void Controller::updatePeripherals()
 {
     pressure->updatePressure();
     fan->updateSpeed();
@@ -25,8 +25,28 @@ bool Controller::updatePeripherals()
             break;
 
         case Mode::automatic:
-            printf("difference = %d\n", pressureDifference());
-            if (!isInRange(2)) {
+#ifdef USE_PID
+            // Calculate difference
+            int16_t difference = pressureDifference();
+            // Proportional term
+            double Pout = P * difference;
+
+            // Integral term
+            integral += difference * 0.1;
+            double Iout = I * integral;
+
+            // Derivative term
+            double derivative = (difference - preDifference) / 0.2;
+            double Dout = D * derivative;
+
+            // Calculate total output
+            double output = Pout + Iout + Dout;
+
+            preDifference = difference;
+
+            fan->setSpeed(fan->getSpeed() + output);
+#else
+            if (!isInRange(PRESSURE_RANGE)) {
                 int16_t difference = pressureDifference();
                 if (difference < 0)
                     difference = -sqrt(abs(difference));
@@ -35,30 +55,9 @@ bool Controller::updatePeripherals()
 
                 fan->setSpeed((int)fan->getSpeed() + difference);
             }
-
-            // Calculate difference
-            //int16_t difference = pressureDifference();
-            //// Proportional term
-            //double Pout = P * difference;
-
-            //// Integral term
-            //integral += difference * 0.1;
-            //double Iout = I * integral;
-
-            //// Derivative term
-            //double derivative = (difference - preDifference) / 0.2;
-            //double Dout = D * derivative;
-
-            //// Calculate total output
-            //double output = Pout + Iout + Dout;
-
-            //preDifference = difference;
-
-            //fan->setSpeed(fan->getSpeed() + output);
-
+#endif
             break;
     }
-    return true;
 }
 
 int16_t Controller::pressureDifference()

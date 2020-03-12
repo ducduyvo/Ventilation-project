@@ -50,7 +50,10 @@ void Menu::event(MenuItem::menuEvent e)
                 position = HOMEPOS;
                 homeScreen->display();
             }
-            // TODO: Is there anything we want to do if we press back on homescreen
+
+            else {
+                homeScreen->display();
+            }
             break;
 
         case MenuItem::show:

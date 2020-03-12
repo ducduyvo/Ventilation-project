@@ -6,16 +6,19 @@
 #include "IntegerEdit.h"
 #include "ModeEdit.h"
 
+/* #define USE_PID */
 
-#define P 0.1
-#define I 0.5
+#define P 150
+#define I 0.2
 #define D 0.01
+
+#define PRESSURE_RANGE 2
 
 class Controller {
 public:
     Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_, IntegerEdit *targetPressure_, ModeEdit *state_);
     virtual ~Controller() {};
-    bool updatePeripherals();
+    void updatePeripherals();
     int16_t pressureDifference();
     bool isInRange(int offset);
     void setTargetSpeed(uint8_t targetSpeed_)       { targetSpeed->setValue(targetSpeed_); }

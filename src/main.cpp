@@ -38,27 +38,30 @@
 #include "IntegerEdit.h"
 #include "HomeScreen.h"
 
-#define REACHTIME 65
+#define REACH_TIME 10000
 #define TICKRATE 1000
 #define MAXREPEAT 500
 #define MINREPEAT 10
-#define DEBOUNCE_TIME 150
+#define DEBOUNCE_TIME 10
+#define BACK_TIME 10000
+#define WARNING_TIME
 
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
 static bool loaded = false;
 static volatile int counter;
-static volatile int buttonCounter;
+static int reachCounter = 0;
 static volatile int debounce = 0;
 static volatile uint32_t systicks = 0;
-static volatile int backCounter = 10000;
+static volatile int backCounter = BACK_TIME;
 //static volatile uint32_t systicks;
 static LiquidCrystal *lcd;
 static Controller *controller;
 static Printer printer;
 static Menu *menu;
 static HomeScreen *homeScreen;
+static ModeEdit *currentMode;
 
 // No switch 2 since it's for the ok button and we dont need to repeat ok
 static volatile int intRepeat = 0;
@@ -100,10 +103,16 @@ void SysTick_Handler(void)
         debounce--;
     if (counter > 0)
         counter--;
-    if (buttonCounter >0)
-        buttonCounter--;
-    if (loaded)
-        updateScreen();
+
+    if (loaded) {
+        if (controller->isInRange(PRESSURE_RANGE))
+            reachCounter = 0;
+
+        else if (controller->pressureDifference() != 0 && currentMode->getValue() == Mode::automatic)
+            reachCounter++;
+        if (reachCounter < REACH_TIME)
+            updateScreen();
+    }
 }
 #ifdef __cplusplus
 }
@@ -153,7 +162,8 @@ extern "C"
         }
 
         else {
-            menu->event(MenuItem::menuEvent::down);
+            if (debounce <= 0)
+                menu->event(MenuItem::menuEvent::down);
             printf("sw0 High\n");
             releasedSw0 = false;
             intRepeat = MAXREPEAT;
@@ -161,7 +171,9 @@ extern "C"
             Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(0));
         }
 
-        backCounter = 10000;
+        backCounter = BACK_TIME;
+        debounce = DEBOUNCE_TIME;
+        reachCounter = 0;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     }
 
@@ -169,12 +181,12 @@ extern "C"
     {
         if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
             printf("sw1\n");
-            if (debounce <= 0) {
+            if (debounce <= 0)
                 switchEvent(MenuItem::menuEvent::ok);
-            }
         }
-        backCounter = 10000;
+        backCounter = BACK_TIME;
         debounce = DEBOUNCE_TIME;
+        reachCounter = 0;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
     }
 
@@ -187,7 +199,8 @@ extern "C"
         }
 
         else {
-            menu->event(MenuItem::menuEvent::up);
+            if (debounce <= 0)
+                menu->event(MenuItem::menuEvent::up);
             printf("sw2 High\n");
             releasedSw2 = false;
             Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2));
@@ -195,7 +208,9 @@ extern "C"
             previousIntRepeat = MAXREPEAT;
         }
 
-        backCounter = 10000;
+        backCounter = BACK_TIME;
+        reachCounter = 0;
+        debounce = DEBOUNCE_TIME;
         Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
     }
 }
@@ -287,61 +302,38 @@ int main(void)
     /* Variables */
     Fan fan;
     Pressure pressure;
-    int reachCounter = 0;
 
+    // TODO: what should the step be
     IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 1);
     IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 1);
-    ModeEdit currentMode(lcd, "Mode", Mode::automatic);
+    currentMode = new ModeEdit(lcd, "Mode", Mode::automatic);
 
     MenuItem speedItem(&targetSpeed);
     MenuItem pressureItem(&targetPressure);
-    homeScreen = new HomeScreen(lcd, &fan, &pressure, &currentMode);
-    controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, &currentMode);
+    homeScreen = new HomeScreen(lcd, &fan, &pressure, currentMode);
+    controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, currentMode);
 
-    menu = new Menu(homeScreen, &speedItem, &pressureItem, &currentMode); /* this could also be allocated from the heap */
+    menu = new Menu(homeScreen, &speedItem, &pressureItem, currentMode); /* this could also be allocated from the heap */
     menu->event(MenuItem::show);
 
     loaded = true;
     while (1) {
-        /* checkButtons(); */
-        /* if (menu->getPosition() == HOMEPOS) { */
-        /*     if (controller->hasModeChanged()) { */
-        /*         homeScreen->displayMode(); */
-        /*     } */
-        /*     if (controller->hasPressureChanged()) { */
-        /*         homeScreen->displayPressure(); */
-        /*     } */
-        /*     if (controller->hasSpeedChanged()) { */
-        /*         homeScreen->displayFan(); */
-        /*     } */
-        /* } */
-
         printf("%d/%d, %u/%u\n", pressure.getPressure(), controller->getTargetPressure(), fan.getSpeed(), controller->getTargetSpeed());
+        printf("ReachCounter = %d\n", reachCounter);
         controller->updatePeripherals();
-        Sleep(10);
-        /* printf("%d,%d,%d          ", releasedSw0, releasedSw1, releasedSw2); */
-        /* printf("P/tP, S/tS\n"); */
-        /* printf("debounce = %d\n", debounce); */
 
-        /* if (controller->pressureDifference() == 0) */
-        /*     reachCounter = 0; */
-
-        /* else if (controller->pressureDifference() != 0 && currentMode.getValue() == Mode::automatic) */
-        /*     reachCounter++; */
-
-        /* else if (currentMode.getValue() == Mode::manual) */
-        /*     reachCounter = 0; */
-
-        /* if (reachCounter == REACHTIME) { */
-        /*     printf("Unreachable\n"); */
-        /*     lcd->clear(); */
-        /*     lcd->setCursor(0, 0); */
-        /*     lcd->print("Can't reach"); */
-        /*     lcd->setCursor(0, 1); */
-        /*     lcd->print("target pressure"); */
-        /*     Sleep(3000); */
-        /*     reachCounter = 0; */
-        /* } */
+        if (reachCounter >= REACH_TIME) {
+            printf("Unreachable\n");
+            lcd->clear();
+            lcd->setCursor(0, 0);
+            lcd->print("Can't reach");
+            lcd->setCursor(0, 1);
+            lcd->print("target pressure");
+            Sleep(5000);
+            menu->event(MenuItem::back);
+            reachCounter = 0;
+        }
+        Sleep(500);
     }
 
     return 1;
@@ -358,7 +350,7 @@ void checkButtons()
     }
 
     if (backCounter <= 0) {
-        backCounter = 10000;
+        backCounter = BACK_TIME;
         menu->event(MenuItem::menuEvent::back);
     }
 }
