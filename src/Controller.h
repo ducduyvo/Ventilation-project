@@ -6,11 +6,11 @@
 #include "IntegerEdit.h"
 #include "ModeEdit.h"
 
-#define USE_PID
+//#define USE_PID
 
-#define P 1
-#define I 0
-#define D 0.125
+#define P 1.05
+#define I 0.1
+#define D 0.1
 
 #define PRESSURE_RANGE 2
 

@@ -28,6 +28,7 @@ void Controller::updatePeripherals()
         case Mode::automatic:
             if (!isInRange(PRESSURE_RANGE)) {
 #ifdef USE_PID
+
                 // Calculate difference
                 int16_t difference = pressureDifference();
                 // Proportional term
@@ -43,11 +44,12 @@ void Controller::updatePeripherals()
 
                 // Calculate total output
                 double output = Pout + Iout + Dout;
-                printf("Pout = %lf, Iout = %lf, Dout = %lf, output = %lf\n", Pout, Iout, Dout, output);
+                printf("%.2lf + %.2lf + %.2lf = %.2lf,  ", Pout, Iout, Dout, output);
 
                 preDifference = difference;
                 printf("GetSpeed = %u\n",fan->getSpeed());
                 fan->setSpeed(fan->getSpeed() + output);
+
 #else
                 int16_t difference = pressureDifference();
                 if (difference < 0)
@@ -57,6 +59,9 @@ void Controller::updatePeripherals()
 
                 fan->setSpeed((int)fan->getSpeed() + difference);
 #endif
+            }
+            else{
+                integral = 0;
             }
 
             break;
