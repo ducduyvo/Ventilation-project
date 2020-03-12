@@ -11,12 +11,14 @@
 #include <stdio.h>
 #include <string.h>
 
-HomeScreen::HomeScreen(LiquidCrystal *lcd_, Fan *fan_, Pressure *pressure_, ModeEdit *mode_) :
+HomeScreen::HomeScreen(LiquidCrystal *lcd_, Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_, IntegerEdit *targetPressure_, ModeEdit *mode_) :
     lcd(lcd_),
     fan(fan_),
     pressure(pressure_),
+    targetSpeed(targetSpeed_),
+    targetPressure(targetPressure_),
     mode(mode_),
-    barGraph(lcd, 1, true)
+    barGraph(lcd)
 {
 }
 
@@ -45,8 +47,8 @@ void HomeScreen::displayMode() {
 }
 
 void HomeScreen::displayFan() {
-    lcd->setCursor(5, 1);
-    barGraph.draw(fan->getSpeed() / 12.5);
+    /* lcd->setCursor(5, 1); */
+    barGraph.draw2Bars(fan->getSpeed() / 12.5, mode->getValue() == Mode::manual ? targetSpeed->getValue() / 12.5 : 0, 5, 1);
     lcd->setCursor(6, 1);
     char buffer[7] = "";
     sprintf(buffer, "%u", fan->getSpeed());
@@ -57,11 +59,11 @@ void HomeScreen::displayFan() {
 }
 
 void HomeScreen::displayPressure() {
-    lcd->setCursor(10, 1);
-    barGraph.draw(pressure->getPressure() / 15);
+    /* lcd->setCursor(10, 1); */
+    barGraph.draw2Bars(pressure->getPressure() / 15, mode->getValue() == Mode::automatic ? targetPressure->getValue() / 15 : 0, 10, 1);
     lcd->setCursor(11, 1);
     char buffer[7] = "";
-    sprintf(buffer, "%u", pressure->getPressure());
+    sprintf(buffer, "%d", pressure->getPressure());
     strcat(buffer, "pa");
 
     snprintf(buffer, 7, "%-4s", buffer);

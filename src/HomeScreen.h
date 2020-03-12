@@ -22,7 +22,7 @@
 
 class HomeScreen : public MenuItem {
 public:
-    HomeScreen(LiquidCrystal *lcd_, Fan *fan_, Pressure *pressure_, ModeEdit *mode_);
+    HomeScreen(LiquidCrystal *lcd_, Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_, IntegerEdit *targetPressure_, ModeEdit *mode_);
     ~HomeScreen() { };
     void setModeTitle(const char *title)     { modeTitle = title;     }
     void setFanTitle(const char *title)    { fanTitle = title;    }
@@ -42,6 +42,8 @@ private:
     LiquidCrystal *lcd;
     Fan *fan;    // in percent
     Pressure *pressure; // in pascal
+    IntegerEdit *targetSpeed;
+    IntegerEdit *targetPressure;
     ModeEdit *mode;
     BarGraph barGraph;
 

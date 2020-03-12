@@ -6,75 +6,43 @@
  */
 
 #include "BarGraph.h"
+#include "Printer.h"
+static Printer printer;
 
-
-const uint8_t BarGraph::horizontalMap[8][8] = {
-		{ 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10 },
-		{ 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18 },
-		{ 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C },
-		{ 0x1E, 0x1E, 0x1E, 0x1E, 0x1E, 0x1E, 0x1E, 0x1E },
-		{ 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F }
-};
-
-const uint8_t BarGraph::verticalMap[8][8] = {
-		{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F },
-		{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F, 0x1F },
-		{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F, 0x1F, 0x1F },
-		{ 0x00, 0x00, 0x00, 0x00, 0x1F, 0x1F, 0x1F, 0x1F },
-		{ 0x00, 0x00, 0x00, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F },
-		{ 0x00, 0x00, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F },
-		{ 0x00, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F },
-		{ 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F }
-};
-
-BarGraph::BarGraph(LiquidCrystal *lcd_, int length_, bool vertical_): lcd(lcd_), length(length_), vertical(vertical_) {
-	int i;
-	if(vertical) {
-		length = 8;
-		for(i = 0; i < 8; i++) {
-			lcd->createChar(i, (uint8_t *) verticalMap[i]);
-		}
-		size = 1;
-	}
-	else {
-		if(length < 5) length = 5;
-		for(i = 0; i < 8; i++) {
-			lcd->createChar(i, (uint8_t *) horizontalMap[i]);
-		}
-		size = length / 5 + (length % 5 > 0 ? 1 : 0);
-	}
-	lcd->setCursor(0,0); // move cursor back to visible area
+BarGraph::BarGraph(LiquidCrystal *lcd_): lcd(lcd_)
+{
+    lcd->setCursor(0,0); // move cursor back to visible area
 }
 
-BarGraph::~BarGraph() {
-	// TODO Auto-generated destructor stub
-}
+void BarGraph::draw2Bars(int8_t first, int8_t second, uint8_t curX, uint8_t curY) {
+    if (first < 0) first = 0;
+    if (second < 0) second = 0;
+    if (first == 0 && second == 0) {
+        lcd->write(32);
+        return;
+    }
 
-void BarGraph::draw(int value) {
-	if(value < 0) value = 0;
-	if(value > length) value = length;
+    Sleep(1000);
 
-	if(vertical) {
-		if(value == 0) lcd->write(32);
-		else lcd->write(value - 1);
-	}
-	else {
-		int full = value / 5;
-		int rest = value % 5;
-		int count = size;
-		while(count) {
-			if(full > 0) {
-				lcd->write(4);
-				full--;
-			}
-			else if(rest > 0) {
-				lcd->write(rest - 1);
-				rest = 0;
-			}
-			else {
-				lcd->write(32);
-			}
-			count--;
-		}
-	}
+    for (int8_t i = 7; i >= 0; --i) {
+        newchar[i] = 0;
+        if (first > 0) {
+            newchar[i] |= 0b11000;
+        }
+
+        if (second > 0) {
+            newchar[i] |= 0b00011;
+        }
+
+        newchar[i] &= 0b11011; // Set the middle bar 0
+        --first;
+        --second;
+
+        printer.print("value %d = %u\n", newchar[i]);
+    }
+
+
+    lcd->createChar(0, (uint8_t *) newchar);
+    lcd->setCursor(curX, curY);
+    lcd->write(0);
 }
