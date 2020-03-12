@@ -16,6 +16,7 @@
 #include "Pressure.h"
 #include "Fan.h"
 #include <string>
+#include "BarGraph.h"
 
 #define BUF_SIZE 17
 
@@ -42,6 +43,7 @@ private:
     Fan *fan;    // in percent
     Pressure *pressure; // in pascal
     ModeEdit *mode;
+    BarGraph barGraph;
 
     // Titles hold what we print in the top row
     std::string modeTitle     = "MODE";

@@ -15,7 +15,8 @@ HomeScreen::HomeScreen(LiquidCrystal *lcd_, Fan *fan_, Pressure *pressure_, Mode
     lcd(lcd_),
     fan(fan_),
     pressure(pressure_),
-    mode(mode_)
+    mode(mode_),
+    barGraph(lcd, 1, true)
 {
 }
 
@@ -39,27 +40,31 @@ void HomeScreen::displayTitles() {
 void HomeScreen::displayMode() {
     lcd->setCursor(0, 1);
     char buffer[7] = "";
-    snprintf(buffer, 7, "%-6s", mode->toString(mode->getValue()));
+    snprintf(buffer, 7, "%-5s", mode->toString(mode->getValue()));
     lcd->print(buffer);
 }
 
 void HomeScreen::displayFan() {
+    lcd->setCursor(5, 1);
+    barGraph.draw(fan->getSpeed() / 12.5);
     lcd->setCursor(6, 1);
     char buffer[7] = "";
     sprintf(buffer, "%u", fan->getSpeed());
     strcat(buffer, "%%");
 
-    snprintf(buffer, 7, "%-6s", buffer);
+    snprintf(buffer, 7, "%-5s", buffer);
     lcd->print(buffer);
 }
 
 void HomeScreen::displayPressure() {
+    lcd->setCursor(10, 1);
+    barGraph.draw(pressure->getPressure() / 15);
     lcd->setCursor(11, 1);
     char buffer[7] = "";
     sprintf(buffer, "%u", pressure->getPressure());
     strcat(buffer, "pa");
 
-    snprintf(buffer, 7, "%-5s", buffer);
+    snprintf(buffer, 7, "%-4s", buffer);
     lcd->print(buffer);
 }
 
