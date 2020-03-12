@@ -103,6 +103,11 @@ void SysTick_Handler(void)
         debounce--;
     if (counter > 0)
         counter--;
+    if(backCounter <= 0){
+                backCounter = 10000;
+                menu->event(MenuItem::menuEvent::back);
+            }
+
 
     if (loaded) {
         if (controller->isInRange(PRESSURE_RANGE))
