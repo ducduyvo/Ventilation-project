@@ -310,6 +310,8 @@ int main(void)
     // TODO: what should the step be
     IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 7);
     IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 7);
+    targetSpeed.setSymbol("%%");
+    targetPressure.setSymbol("pa");
     currentMode = new ModeEdit(lcd, "Mode", Mode::automatic);
 
     MenuItem speedItem(&targetSpeed);

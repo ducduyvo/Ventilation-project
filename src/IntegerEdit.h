@@ -20,21 +20,21 @@ public:
     bool decrement();
     void accept();
     void cancel();
-    void setFocus(bool focus);
-    bool getFocus();
     void display();
     int getValue();
     int getEdit();
     void setValue(int value);
+    void setTitle(const char *title_) { title = title_; }
+    void setSymbol(const char *symbol_) { symbol = symbol_; }
     std::string getTitle();
 private:
     void save();
     void displayEditValue();
     LiquidCrystal *lcd;
     std::string title;
+    std::string symbol;
     int value;
     int edit;
-    bool focus;
     int min;
     int max;
     int step;

@@ -6,6 +6,8 @@
  */
 
 #include "IntegerEdit.h"
+#include <stdio.h>
+#include <string.h>
 #include <cstdio>
 
 IntegerEdit::IntegerEdit(LiquidCrystal *lcd_, std::string editTitle, int min_, int max_, int step_) :
@@ -17,7 +19,7 @@ IntegerEdit::IntegerEdit(LiquidCrystal *lcd_, std::string editTitle, int min_, i
 {
     value = 0;
     edit = 0;
-    focus = false;
+    symbol = "";
 }
 
 IntegerEdit::~IntegerEdit()
@@ -52,30 +54,17 @@ void IntegerEdit::cancel()
     edit = value;
 }
 
-void IntegerEdit::setFocus(bool focus)
-{
-    this->focus = focus;
-}
-
-bool IntegerEdit::getFocus()
-{
-    return this->focus;
-}
-
 void IntegerEdit::display()
 {
     lcd->clear();
     lcd->setCursor(0,0);
     lcd->print(title);
     lcd->setCursor(0,1);
-    char s[17];
-    if (focus) {
-        snprintf(s, 17, "     [%4d]     ", edit);
-    }
-    else {
-        snprintf(s, 17, "      %4d      ", edit);
-    }
-    lcd->print(s);
+    char buffer[17];
+
+    sprintf(buffer, "%8d", edit);
+    strcat(buffer, symbol.c_str());
+    lcd->print(buffer);
 }
 
 

@@ -16,8 +16,6 @@ public:
     virtual bool decrement() = 0; // returns if the value was changed
     virtual void accept() = 0;
     virtual void cancel() = 0;
-    virtual void setFocus(bool focus) = 0;
-    virtual bool getFocus() = 0;
     virtual void display() = 0;
 };
 
