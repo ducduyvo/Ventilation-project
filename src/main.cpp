@@ -42,7 +42,7 @@
 #define TICKRATE 1000
 #define MAXREPEAT 500
 #define MINREPEAT 10
-#define DEBOUNCE_TIME 10
+#define DEBOUNCE_TIME 50
 #define BACK_TIME 10000
 #define WARNING_TIME
 
@@ -121,7 +121,6 @@ void SysTick_Handler(void)
 void updateScreen()
 {
     {
-        /* printf("%d,%d,%d\n", releasedSw0, releasedSw1, releasedSw2); */
         /* checkButtons(); */
         if (menu->getPosition() == HOMEPOS) {
             if (controller->hasModeChanged()) {
@@ -157,14 +156,14 @@ extern "C"
     {
         // check whether the interrupt was low or high
         if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0)) {
-            printf("sw0 Low\n");
+            /* printf("sw0 Low\n"); */
             releasedSw0 = true;
         }
 
         else {
             if (debounce <= 0)
                 menu->event(MenuItem::menuEvent::down);
-            printf("sw0 High\n");
+            /* printf("sw0 High\n"); */
             releasedSw0 = false;
             intRepeat = MAXREPEAT;
             previousIntRepeat = MAXREPEAT;
@@ -180,7 +179,7 @@ extern "C"
     void PIN_INT1_IRQHandler(void)
     {
         if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
-            printf("sw1\n");
+            /* printf("sw1\n"); */
             if (debounce <= 0)
                 switchEvent(MenuItem::menuEvent::ok);
         }
@@ -194,14 +193,14 @@ extern "C"
     {
         // check whether the interrupt was low or high
         if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2)) {
-            printf("sw2 Low\n");
+            /* printf("sw2 Low\n"); */
             releasedSw2 = true;
         }
 
         else {
             if (debounce <= 0)
                 menu->event(MenuItem::menuEvent::up);
-            printf("sw2 High\n");
+            /* printf("sw2 High\n"); */
             releasedSw2 = false;
             Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2));
             intRepeat = MAXREPEAT;
@@ -304,8 +303,8 @@ int main(void)
     Pressure pressure;
 
     // TODO: what should the step be
-    IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 1);
-    IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 1);
+    IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 7);
+    IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 7);
     currentMode = new ModeEdit(lcd, "Mode", Mode::automatic);
 
     MenuItem speedItem(&targetSpeed);
@@ -319,7 +318,6 @@ int main(void)
     loaded = true;
     while (1) {
         printf("%d/%d, %u/%u\n", pressure.getPressure(), controller->getTargetPressure(), fan.getSpeed(), controller->getTargetSpeed());
-        printf("ReachCounter = %d\n", reachCounter);
         controller->updatePeripherals();
 
         if (reachCounter >= REACH_TIME) {
