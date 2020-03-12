@@ -316,7 +316,7 @@ int main(void)
 
     MenuItem speedItem(&targetSpeed);
     MenuItem pressureItem(&targetPressure);
-    homeScreen = new HomeScreen(lcd, &fan, &pressure, currentMode);
+    homeScreen = new HomeScreen(lcd, &fan, &pressure, &targetSpeed, &targetPressure, currentMode);
     controller = new Controller(&fan, &pressure, &targetSpeed, &targetPressure, currentMode);
 
     menu = new Menu(homeScreen, &speedItem, &pressureItem, currentMode); /* this could also be allocated from the heap */
