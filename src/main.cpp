@@ -50,6 +50,7 @@
  * Private types/enumerations/variables
  ****************************************************************************/
 static bool loaded = false;
+static bool warning = false;
 static volatile int counter;
 static int reachCounter = 0;
 static volatile int debounce = 0;
@@ -103,19 +104,20 @@ void SysTick_Handler(void)
         debounce--;
     if (counter > 0)
         counter--;
-    if(backCounter <= 0){
-                backCounter = 10000;
-                menu->event(MenuItem::menuEvent::back);
-            }
+    if (backCounter <= 0 && !warning) {
+        backCounter = 10000;
+        menu->event(MenuItem::menuEvent::back);
+    }
 
 
     if (loaded) {
-        if (controller->isInRange(PRESSURE_RANGE))
+        if (controller->isInRange(PRESSURE_RANGE)) {
             reachCounter = 0;
+        }
 
-        else if (controller->pressureDifference() != 0 && currentMode->getValue() == Mode::automatic)
+        else if (currentMode->getValue() == Mode::automatic && !warning)
             reachCounter++;
-        if (reachCounter < REACH_TIME)
+        if (reachCounter < REACH_TIME && !warning)
             updateScreen();
     }
 }
@@ -166,8 +168,14 @@ extern "C"
         }
 
         else {
-            if (debounce <= 0 && loaded)
-                menu->event(MenuItem::menuEvent::down);
+            if (debounce <= 0 && loaded) {
+                if (warning) {
+                    menu->event(MenuItem::menuEvent::back);
+                    warning = false;
+                }
+                else
+                    menu->event(MenuItem::menuEvent::down);
+            }
             /* printf("sw0 High\n"); */
             releasedSw0 = false;
             intRepeat = MAXREPEAT;
@@ -186,7 +194,13 @@ extern "C"
         if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
             /* printf("sw1\n"); */
             if (debounce <= 0 && loaded)
-                switchEvent(MenuItem::menuEvent::ok);
+                if (warning) {
+                    menu->event(MenuItem::menuEvent::back);
+                    warning = false;
+                }
+                else {
+                    switchEvent(MenuItem::menuEvent::ok);
+                }
         }
         backCounter = BACK_TIME;
         debounce = DEBOUNCE_TIME;
@@ -204,7 +218,12 @@ extern "C"
 
         else {
             if (debounce <= 0 && loaded)
-                menu->event(MenuItem::menuEvent::up);
+                if (warning) {
+                    warning = false;
+                    menu->event(MenuItem::menuEvent::back);
+                }
+                else
+                    menu->event(MenuItem::menuEvent::up);
             /* printf("sw2 High\n"); */
             releasedSw2 = false;
             Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2));
@@ -328,17 +347,17 @@ int main(void)
     loaded = true;
     while (1) {
         printf("%d/%d, %u/%u\n", pressure.getPressure(), controller->getTargetPressure(), fan.getSpeed(), controller->getTargetSpeed());
+        printf("warning = %d, reachCounter = %d\n", warning, reachCounter);
         controller->updatePeripherals();
 
         if (reachCounter >= REACH_TIME) {
             printf("Unreachable\n");
             lcd->clear();
             lcd->setCursor(0, 0);
-            lcd->print("Can't reach");
+            lcd->print("Pressure error");
             lcd->setCursor(0, 1);
-            lcd->print("target pressure");
-            Sleep(5000);
-            menu->event(MenuItem::back);
+            lcd->print("Press any button");
+            warning = true;
             reachCounter = 0;
         }
         Sleep(500);
