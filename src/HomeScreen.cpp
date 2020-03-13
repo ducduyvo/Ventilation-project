@@ -26,8 +26,8 @@ void HomeScreen::display()
 {
     lcd->clear();
     displayTitles();
-    displayFan();
     displayMode();
+    displayFan();
     displayPressure();
 }
 
@@ -48,7 +48,7 @@ void HomeScreen::displayMode() {
 
 void HomeScreen::displayFan() {
     /* lcd->setCursor(5, 1); */
-    barGraph.draw2Bars(fan->getSpeed() / 12.5, mode->getValue() == Mode::manual ? targetSpeed->getValue() / 12.5 : 0, 5, 1);
+    barGraph.draw2Bars(fan->getSpeed() / 12.5, mode->getValue() == Mode::manual ? targetSpeed->getValue() / 12.5 : 0, 5, 1, 0);
     lcd->setCursor(6, 1);
     char buffer[7] = "";
     sprintf(buffer, "%u", fan->getSpeed());
@@ -60,7 +60,7 @@ void HomeScreen::displayFan() {
 
 void HomeScreen::displayPressure() {
     /* lcd->setCursor(10, 1); */
-    barGraph.draw2Bars(pressure->getPressure() / 15, mode->getValue() == Mode::automatic ? targetPressure->getValue() / 15 : 0, 10, 1);
+    barGraph.draw2Bars(pressure->getPressure() / 15, mode->getValue() == Mode::automatic ? targetPressure->getValue() / 15 : 0, 10, 1, 1);
     lcd->setCursor(11, 1);
     char buffer[7] = "";
     sprintf(buffer, "%d", pressure->getPressure());

@@ -48,12 +48,9 @@ void Menu::event(MenuItem::menuEvent e)
             if (position != HOMEPOS) {
                 items[position]->event(e);
                 position = HOMEPOS;
-                homeScreen->display();
             }
+            homeScreen->display();
 
-            else {
-                homeScreen->display();
-            }
             break;
 
         case MenuItem::show:

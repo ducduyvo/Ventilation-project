@@ -14,7 +14,7 @@ class BarGraph {
 public:
     BarGraph(LiquidCrystal *lcd_);
     virtual ~BarGraph() { };
-    void draw2Bars(int8_t first, int8_t second, uint8_t curX, uint8_t curY);
+    void draw2Bars(int8_t first, int8_t second, uint8_t curX, uint8_t curY, uint8_t reg);
 
 protected:
     LiquidCrystal *lcd;
