@@ -6,8 +6,6 @@
  */
 
 #include "BarGraph.h"
-#include "Printer.h"
-static Printer printer;
 
 BarGraph::BarGraph(LiquidCrystal *lcd_): lcd(lcd_)
 {
@@ -37,7 +35,6 @@ void BarGraph::draw2Bars(int8_t first, int8_t second, uint8_t curX, uint8_t curY
         --first;
         --second;
 
-        printer.print("value %d = %u\n", newchar[i]);
     }
 
 

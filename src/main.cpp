@@ -166,7 +166,7 @@ extern "C"
         }
 
         else {
-            if (debounce <= 0)
+            if (debounce <= 0 && loaded)
                 menu->event(MenuItem::menuEvent::down);
             /* printf("sw0 High\n"); */
             releasedSw0 = false;
@@ -185,7 +185,7 @@ extern "C"
     {
         if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
             /* printf("sw1\n"); */
-            if (debounce <= 0)
+            if (debounce <= 0 && loaded)
                 switchEvent(MenuItem::menuEvent::ok);
         }
         backCounter = BACK_TIME;
@@ -203,7 +203,7 @@ extern "C"
         }
 
         else {
-            if (debounce <= 0)
+            if (debounce <= 0 && loaded)
                 menu->event(MenuItem::menuEvent::up);
             /* printf("sw2 High\n"); */
             releasedSw2 = false;
