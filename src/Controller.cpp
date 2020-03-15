@@ -12,8 +12,8 @@ Controller::Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_
 
 void Controller::updatePeripherals()
 {
-					pressure->updatePressure();
-	                fan->updateSpeed();
+	pressure->updatePressure();
+	fan->updateSpeed();
 
     switch (currentMode->getValue()) {
 

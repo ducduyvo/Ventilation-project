@@ -41,8 +41,8 @@ void HomeScreen::displayTitles() {
 
 void HomeScreen::displayMode() {
     lcd->setCursor(0, 1);
-    char buffer[7] = "";
-    snprintf(buffer, 7, "%-4s", mode->toString(mode->getValue()));
+    char buffer[SMALL_SIZE] = "";
+    snprintf(buffer, SMALL_SIZE, "%-4s", mode->toString(mode->getValue()));
     lcd->print(buffer);
 }
 
@@ -50,11 +50,11 @@ void HomeScreen::displayFan() {
     /* lcd->setCursor(5, 1); */
     barGraph.draw2Bars((fan->getSpeed() + 12.5 / 2) / 12.5, mode->getValue() == Mode::manual ? (targetSpeed->getValue() + 12.5 / 2) / 12.5 : 0, 4, 1, 0);
     lcd->setCursor(5, 1);
-    char buffer[7] = "";
+    char buffer[SMALL_SIZE] = "";
     sprintf(buffer, "%u", fan->getSpeed());
     strcat(buffer, "%%");
 
-    snprintf(buffer, 7, "%-5s", buffer);
+    snprintf(buffer, SMALL_SIZE, "%-5s", buffer);
     lcd->print(buffer);
 }
 
@@ -62,11 +62,11 @@ void HomeScreen::displayPressure() {
     /* lcd->setCursor(10, 1); */
     barGraph.draw2Bars((pressure->getPressure() + 15 / 2)  / 15, mode->getValue() == Mode::automatic ? (targetPressure->getValue() + 15 / 2) / 15 : 0, 10, 1, 1);
     lcd->setCursor(11, 1);
-    char buffer[7] = "";
+    char buffer[SMALL_SIZE] = "";
     sprintf(buffer, "%d", pressure->getPressure());
     strcat(buffer, "pa");
 
-    snprintf(buffer, 7, "%-6s", buffer);
+    snprintf(buffer, SMALL_SIZE, "%-6s", buffer);
     lcd->print(buffer);
 }
 
