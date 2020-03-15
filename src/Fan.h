@@ -5,6 +5,9 @@
 #include "ModbusRegister.h"
 #include "Imutex.h"
 
+//#define USE_STATE_MACHINE
+
+
 #if defined (__USE_LPCOPEN)
     #if defined(NO_BOARD_LIB)
         #include "chip.h"
@@ -34,6 +37,8 @@ public:
 
     uint16_t getStatusWord() { return statusWord; }
     bool getStatusBit(uint8_t bit);
+    uint8_t writeSingleRegister(uint16_t u16WriteAddress, uint16_t u16WriteValue);
+
 
 private:
     Imutex guard;

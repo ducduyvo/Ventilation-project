@@ -24,6 +24,44 @@ Fan::Fan() :
     printf("Status=%04X\n", (int)statusWord); // for debugging
 
     // TODO: Like in keijo's comment make state machine that check's whether
+#ifdef USE_STATE_MACHINE
+
+    int stateNumber = 1;
+    uint16_t controlWordList[5];
+
+
+	while (true) { //indicate state number
+		switch (stateNumber) {
+		case 1: //NOT READY TO SWITCH ON
+			writeSingleRegister(0, controlWordList[0]); //send signal to next state
+			printf("Sent control word 0x%X to drive \n", controlWordList[0]);
+			stateNumber++;
+			break;
+		case 2: //READY TO SWITCH ON
+			writeSingleRegister(0, controlWordList[1]);
+			printf("Sent control word 0x%X to drive \n", controlWordList[1]);
+			stateNumber++;
+			break;
+		case 3: //READY TO OPERATE
+			writeSingleRegister(0, controlWordList[2]);
+			printf("Sent control word 0x%X to drive \n", controlWordList[2]);
+			stateNumber++;
+			break;
+		case 4: //OPERATION ENABLED, this has problem with simulator
+			writeSingleRegister(0, controlWordList[3]);
+			printf("Sent control word 0x%X to drive \n", controlWordList[3]);
+			stateNumber++;
+			break;
+		case 5: //RFG: ACCELERATOR ENABLED , this state is a bit special
+			writeSingleRegister(0, controlWordList[4]);
+			printf("Sent control word 0x%X to drive \n", controlWordList[4]);
+			stateNumber++;
+			break;
+		}
+    }
+#endif
+
+
     // status is ready, so we are ready to go
     Sleep(1000); // give converter some time to set up
     // note: we should have a startup state machine that check converter status and acts per current status
@@ -67,3 +105,9 @@ uint8_t Fan::getSpeed()
 	// std::lock_guard<Imutex> lock(guard);
     return speed;
 }
+
+//write a value to a register
+uint8_t Fan::writeSingleRegister(uint16_t u16WriteAddress, uint16_t u16WriteValue) {
+	return node.writeSingleRegister(u16WriteAddress, u16WriteValue);
+}
+
