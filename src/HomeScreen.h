@@ -18,7 +18,8 @@
 #include <string>
 #include "BarGraph.h"
 
-#define BUF_SIZE 17
+#define BUF_SIZE 15
+#define SMALL_SIZE 7
 
 class HomeScreen : public MenuItem {
 public:
