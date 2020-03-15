@@ -54,7 +54,7 @@ void Fan::setSpeed(int8_t percent)
 
 void Fan::updateSpeed()
 {
-    speed = frequency / 200;
+    speed = frequency / 200; // update speed of fan in percent based on frequency of kit
 }
 
 bool Fan::getStatusBit(uint8_t bit)
