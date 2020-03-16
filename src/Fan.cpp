@@ -1,5 +1,4 @@
 #include "Fan.h"
-#include <mutex>
 
 Fan::Fan() :
     node(2), frequency(&node, 1), controlWord(&node, 0), statusWord(&node, 3)
@@ -23,7 +22,6 @@ Fan::Fan() :
 
     printf("Status=%04X\n", (int)statusWord); // for debugging
 
-    // TODO: Like in keijo's comment make state machine that check's whether
 #ifdef USE_STATE_MACHINE
 
     int stateNumber = 1;
@@ -61,8 +59,6 @@ Fan::Fan() :
     }
 #endif
 
-
-    // status is ready, so we are ready to go
     Sleep(1000); // give converter some time to set up
     // note: we should have a startup state machine that check converter status and acts per current status
     //       but we take the easy way out and just wait a while and hope that everything goes well
@@ -74,8 +70,8 @@ Fan::Fan() :
 
 void Fan::setSpeed(int8_t percent)
 {
-    if (percent > 100)     frequency = MAX_SPEED;
-    else if (percent < 0)  frequency = MIN_SPEED;
+    if (percent > 100)     frequency = MAX_FREQUENCY;
+    else if (percent < 0)  frequency = MIN_FREQUENCY;
     else                   frequency = percent * 200;
 	int ctr = 0;
 	bool atSetpoint = false;
@@ -90,19 +86,21 @@ void Fan::setSpeed(int8_t percent)
 	} while(ctr < 20 && !atSetpoint);
 }
 
+// update speed of fan in percent based on frequency of kit
 void Fan::updateSpeed()
 {
-    speed = frequency / 200; // update speed of fan in percent based on frequency of kit
+    speed = frequency / 200;
 }
 
+// Get specific bit from statusword, statusregister enum is meant to be used with this function
 bool Fan::getStatusBit(uint8_t bit)
 {
     return (statusWord & (1 << bit));
 }
 
+// returns uint8_t speed variables value, NOT the actual current reading from the fan sensor
 uint8_t Fan::getSpeed()
 {
-	// std::lock_guard<Imutex> lock(guard);
     return speed;
 }
 

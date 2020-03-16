@@ -6,19 +6,15 @@ Controller::Controller(Fan *fan_, Pressure *pressure_, IntegerEdit *targetSpeed_
     : fan(fan_), pressure(pressure_), targetSpeed(targetSpeed_), targetPressure(targetPressure_), currentMode(state_)
 {
     previousMode = currentMode->getValue();
-    previousSpeed = 0;
-    previousPressure = 0;
 }
 
 void Controller::updatePeripherals()
 {
-	pressure->updatePressure();
-	fan->updateSpeed();
+    pressure->updatePressure();
+    fan->updateSpeed();
 
     switch (currentMode->getValue()) {
 
-        // TODO everytime this is called if we are in homescreen we should update the
-        // screen
         case Mode::manual:
             if (fan->getSpeed() != targetSpeed->getValue()) {
                 fan->setSpeed(targetSpeed->getValue());
@@ -27,10 +23,9 @@ void Controller::updatePeripherals()
 
         case Mode::automatic:
             if (!isInRange(PRESSURE_RANGE)) {
-#ifdef USE_PID
-
                 // Calculate difference
                 int16_t difference = pressureDifference();
+#ifdef USE_PID
                 // Proportional term
                 double Pout = P * difference;
 
@@ -51,7 +46,6 @@ void Controller::updatePeripherals()
                 fan->setSpeed(fan->getSpeed() + output);
 
 #else
-                int16_t difference = pressureDifference();
                 if (difference < 0)
                     difference = -sqrt(abs(difference));
                 else
@@ -60,7 +54,8 @@ void Controller::updatePeripherals()
                 fan->setSpeed((int)fan->getSpeed() + difference);
 #endif
             }
-            else{
+
+            else {
                 integral = 0;
             }
 
@@ -96,5 +91,5 @@ bool Controller::hasModeChanged()
 
 bool Controller::isInRange(int range)
 {
-    return (abs(pressureDifference()) < range);
+    return (abs(pressureDifference()) <= range);
 }

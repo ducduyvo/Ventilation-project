@@ -1,10 +1,3 @@
-/*
- * MenuItem.h
- *
- *  Created on: 1.2.2016
- *      Author: krl
- */
-
 #ifndef MENUITEM_H_
 #define MENUITEM_H_
 

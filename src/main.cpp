@@ -1,9 +1,9 @@
 /*
 ===============================================================================
  Name        : main.c
- Author      : $(author)
+ Author      : Arsi Arola, Duc Vo, Mikko Larke
  Version     :
- Copyright   : $(copyright)
+ Copyright   :
  Description : main definition
 ===============================================================================
  */
@@ -17,11 +17,6 @@
 #endif
 
 #include <cr_section_macros.h>
-
-// TODO: insert other include files here
-
-// TODO: insert other definitions and declarations here
-
 #include <cstring>
 #include <cstdio>
 #include "ModbusMaster.h"
@@ -49,41 +44,33 @@
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
-static bool loaded = false;
-static bool warning = false;
 static volatile int counter;
 static int reachCounter = 0;
 static volatile int debounce = 0;
 static volatile uint32_t systicks = 0;
 static volatile int backCounter = BACK_TIME;
-//static volatile uint32_t systicks;
+
 static LiquidCrystal *lcd;
 static Controller *controller;
-static Printer printer;
 static Menu *menu;
 static HomeScreen *homeScreen;
 static ModeEdit *currentMode;
 
-// No switch 2 since it's for the ok button and we dont need to repeat ok
+static bool loaded = false;
+static bool warning = false;
+
+// variables used for button repeat
 static volatile int intRepeat = 0;
 static volatile int previousIntRepeat = 0;
 static bool releasedSw0 = true;
-static bool releasedSw1 = true;
 static bool releasedSw2 = true;
-/*****************************************************************************
- * Public types/enumerations/variables
- ****************************************************************************/
 
 /*****************************************************************************
  * Private functions
  ****************************************************************************/
-
-/*****************************************************************************
- * Public functions
- ****************************************************************************/
-void checkButtons();
-void switchEvent(MenuItem::menuEvent event);
-void updateScreen();
+static void checkButtons();
+static void switchEvent(MenuItem::menuEvent event);
+static void updateScreen();
 
 #ifdef __cplusplus
 extern "C"
@@ -109,7 +96,6 @@ void SysTick_Handler(void)
         menu->event(MenuItem::menuEvent::back);
     }
 
-
     if (loaded) {
         if (controller->isInRange(PRESSURE_RANGE)) {
             reachCounter = 0;
@@ -128,7 +114,7 @@ void SysTick_Handler(void)
 void updateScreen()
 {
     {
-        /* checkButtons(); */
+        checkButtons();
         if (menu->getPosition() == HOMEPOS) {
             if (controller->hasModeChanged()) {
                 homeScreen->displayMode();
@@ -163,7 +149,6 @@ extern "C"
     {
         // check whether the interrupt was low or high
         if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(0)) {
-            /* printf("sw0 Low\n"); */
             releasedSw0 = true;
         }
 
@@ -176,7 +161,6 @@ extern "C"
                 else
                     menu->event(MenuItem::menuEvent::down);
             }
-            /* printf("sw0 High\n"); */
             releasedSw0 = false;
             intRepeat = MAXREPEAT;
             previousIntRepeat = MAXREPEAT;
@@ -192,8 +176,7 @@ extern "C"
     void PIN_INT1_IRQHandler(void)
     {
         if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT) == PININTCH(1)) {
-            /* printf("sw1\n"); */
-            if (debounce <= 0 && loaded)
+            if (debounce <= 0 && loaded) {
                 if (warning) {
                     menu->event(MenuItem::menuEvent::back);
                     warning = false;
@@ -201,6 +184,7 @@ extern "C"
                 else {
                     switchEvent(MenuItem::menuEvent::ok);
                 }
+            }
         }
         backCounter = BACK_TIME;
         debounce = DEBOUNCE_TIME;
@@ -212,19 +196,18 @@ extern "C"
     {
         // check whether the interrupt was low or high
         if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT) == PININTCH(2)) {
-            /* printf("sw2 Low\n"); */
             releasedSw2 = true;
         }
 
         else {
-            if (debounce <= 0 && loaded)
+            if (debounce <= 0 && loaded) {
                 if (warning) {
                     warning = false;
                     menu->event(MenuItem::menuEvent::back);
                 }
                 else
                     menu->event(MenuItem::menuEvent::up);
-            /* printf("sw2 High\n"); */
+            }
             releasedSw2 = false;
             Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(2));
             intRepeat = MAXREPEAT;
@@ -283,7 +266,7 @@ int main(void)
     // { 0, 29 };
 
     /* Confiure interrupts */
-    // switch 1
+    // switch 0
     Chip_INMUX_PinIntSel(0, 1, 3);
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(0));
@@ -292,7 +275,7 @@ int main(void)
     NVIC_ClearPendingIRQ(PIN_INT0_IRQn);
     NVIC_EnableIRQ(PIN_INT0_IRQn);
 
-    // switch 2
+    // switch 1
     Chip_INMUX_PinIntSel(1, 0, 9);
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(1));
@@ -301,7 +284,7 @@ int main(void)
     NVIC_ClearPendingIRQ(PIN_INT1_IRQn);
     NVIC_EnableIRQ(PIN_INT1_IRQn);
 
-    // switch 3
+    // switch 2
     Chip_INMUX_PinIntSel(2, 0, 10);
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(2));
@@ -329,10 +312,10 @@ int main(void)
     Fan fan;
     Pressure pressure;
 
-    // TODO: what should the step be
-    IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 7);
-    IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 7);
-    targetSpeed.setSymbol("%%");
+    // TODO: What should the step be?
+    IntegerEdit targetSpeed(lcd, "Target Speed", 0, 100, 1);
+    IntegerEdit targetPressure(lcd, "Target Pressure", 0, 120, 1);
+    targetSpeed.setSymbol("%%"); // must have 2 % symbols since when printing % it has to be escaped with another %
     targetPressure.setSymbol("pa");
     currentMode = new ModeEdit(lcd, "Mode", Mode::automatic);
 
@@ -347,7 +330,6 @@ int main(void)
     loaded = true;
     while (1) {
         printf("%d/%d, %u/%u\n", pressure.getPressure(), controller->getTargetPressure(), fan.getSpeed(), controller->getTargetSpeed());
-        printf("warning = %d, reachCounter = %d\n", warning, reachCounter);
         controller->updatePeripherals();
 
         if (reachCounter >= REACH_TIME) {

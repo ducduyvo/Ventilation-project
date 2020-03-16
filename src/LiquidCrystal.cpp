@@ -154,6 +154,7 @@ void LiquidCrystal::print(std::string const &s)
 }
 
 
+// printf syntax like lcd printing
 void LiquidCrystal::print(const char *format, ...)
 {
     char buffer [32];

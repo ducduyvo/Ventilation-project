@@ -1,10 +1,3 @@
-/*
- * MenuItem.cpp
- *
- *  Created on: 1.2.2016
- *      Author: krl
- */
-
 #include "MenuItem.h"
 
 MenuItem::MenuItem(PropertyEdit *property): pe(property) { }

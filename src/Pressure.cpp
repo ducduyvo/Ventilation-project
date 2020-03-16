@@ -3,7 +3,7 @@
 
 Pressure::Pressure() : i2c(i2c_config) { }
 
-int16_t Pressure::updatePressure()
+void Pressure::updatePressure()
 {
     uint8_t data[3];
     uint8_t cmd = READ_COMMAND;
@@ -16,9 +16,9 @@ int16_t Pressure::updatePressure()
     pressure = convertPressure(value);
 }
 
-int16_t Pressure::convertPressure(int16_t pressure)
+int16_t Pressure::convertPressure(int16_t pressure_)
 {
-    return (pressure / SCALE_FACTOR) * 0.95;
+    return (pressure_ / SCALE_FACTOR) * 0.95;
 }
 
 

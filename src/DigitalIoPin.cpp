@@ -8,13 +8,12 @@
     #endif
 #endif
 
-DigitalIoPin::DigitalIoPin(int port_, int pin_, bool input_, bool pullup_, bool invert_, const char *name_) :
+DigitalIoPin::DigitalIoPin(int port_, int pin_, bool input_, bool pullup_, bool invert_) :
     port(port_),
     pin(pin_),
     input(input_),
     pullup(pullup_),
-    invert(invert_),
-    name(name_)
+    invert(invert_)
 {
     Chip_IOCON_PinMuxSet(LPC_IOCON, port, pin, (IOCON_DIGMODE_EN  |
                          ((pullup) ? (IOCON_MODE_PULLUP) : (0)) |
@@ -25,16 +24,6 @@ DigitalIoPin::DigitalIoPin(int port_, int pin_, bool input_, bool pullup_, bool 
     else {
         Chip_GPIO_SetPinDIROutput(LPC_GPIO, port_, pin_);
     }
-}
-
-int DigitalIoPin::measure_press()
-{
-    int time = 0;
-    while (read()) {
-        Sleep(10);
-        time += 10;
-    }
-    return time;
 }
 
 void DigitalIoPin::write(bool on)

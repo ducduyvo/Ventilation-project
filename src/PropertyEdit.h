@@ -1,10 +1,3 @@
-/*
- * PropertyEdit.h
- *
- *  Created on: 2.2.2016
- *      Author: krl
- */
-
 #ifndef PROPERTYEDIT_H_
 #define PROPERTYEDIT_H_
 
@@ -12,7 +5,7 @@ class PropertyEdit {
 public:
     PropertyEdit() {};
     virtual ~PropertyEdit() {};
-    virtual bool increment() = 0;
+    virtual bool increment() = 0; // returns if the value was changed
     virtual bool decrement() = 0; // returns if the value was changed
     virtual void accept() = 0;
     virtual void cancel() = 0;

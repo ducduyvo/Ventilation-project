@@ -1,10 +1,3 @@
-/*
- * Menu.cpp
- *
- *  Created on: 3.2.2016
- *      Author: krl
- */
-
 #include "Menu.h"
 
 Menu::Menu(HomeScreen *homeScreen_, MenuItem *targetSpeed_, MenuItem *targetPressure_, ModeEdit *currentMode_) :
@@ -38,8 +31,9 @@ void Menu::event(MenuItem::menuEvent e)
             // if we are not on home screen we want to go back to it
             if (position != HOMEPOS) {
                 position = HOMEPOS;
-                homeScreen->display();
             }
+
+            items[position]->event(MenuItem::menuEvent::show);
             break;
 
         // Always goes to back to homescreen
@@ -70,7 +64,8 @@ void Menu::handleUpOrDown(MenuItem::menuEvent e)
         else if (currentMode->getValue() == Mode::automatic) {
             position = PRESSUREPOS;
         }
-        // call the correct show event
+
+        // call show event for correct menuitem
         items[position]->event(MenuItem::show);
     }
 

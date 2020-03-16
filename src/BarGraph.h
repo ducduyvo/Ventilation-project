@@ -1,14 +1,9 @@
-/*
- * BarGraph.h
- *
- *  Created on: 1.2.2016
- *      Author: krl
- */
-
 #ifndef BARGRAPH_H_
 #define BARGRAPH_H_
 
 #include "LiquidCrystal.h"
+
+#define BAR_HEIGHT 8
 
 class BarGraph {
 public:
