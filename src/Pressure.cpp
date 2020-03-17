@@ -10,10 +10,13 @@ void Pressure::updatePressure()
     int16_t value = 0;
     if (i2c.transaction(PRESSURE_ADDRESS, &cmd, 1, data, 3))
     {
+        //  Output pressure
+        // <<: binary left shift, return data is 2 bytes, the last byte is CRC-8.
         value = (data[0] << 8) | data[1];
         pressure = convertPressure(value);
     }
-    else{
+    else
+    {
         printf("Error in getting pressure");
     }
 }
